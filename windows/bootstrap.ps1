@@ -3,6 +3,7 @@
 #
 #   irm https://raw.githubusercontent.com/Durant0509/crypto_test/main/windows/bootstrap.ps1 | iex
 #
+# ASCII-only on purpose (see note in setup.ps1).
 $ErrorActionPreference = "Stop"
 $dir = "C:\crypto_test"
 
@@ -13,24 +14,24 @@ function Refresh-Path {
 }
 
 if (-not (Test-Cmd git)) {
-  Write-Host "安裝 Git..." -ForegroundColor Yellow
+  Write-Host "Installing Git..." -ForegroundColor Yellow
   winget install -e --id Git.Git --silent --accept-package-agreements --accept-source-agreements
   Refresh-Path
 }
 if (-not (Test-Cmd python)) {
-  Write-Host "安裝 Python..." -ForegroundColor Yellow
+  Write-Host "Installing Python..." -ForegroundColor Yellow
   winget install -e --id Python.Python.3.12 --silent --accept-package-agreements --accept-source-agreements
   Refresh-Path
 }
 if (-not (Test-Cmd git)) {
-  throw "Git 裝好了但這個視窗還抓不到。請關掉 PowerShell、重開一個，再貼一次同樣的指令即可。"
+  throw "Git was installed but this window can't see it yet. Close PowerShell, open a NEW one, and paste the same command again."
 }
 
 if (Test-Path $dir) {
-  Write-Host "$dir 已存在，git pull 更新..." -ForegroundColor Cyan
+  Write-Host "$dir exists, pulling latest..." -ForegroundColor Cyan
   git -C $dir pull
 } else {
-  Write-Host "clone 到 $dir ..." -ForegroundColor Cyan
+  Write-Host "Cloning to $dir ..." -ForegroundColor Cyan
   git clone https://github.com/Durant0509/crypto_test.git $dir
 }
 Set-Location $dir
