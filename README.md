@@ -96,6 +96,22 @@ pip install -r requirements.txt
 python scripts/run_backtest.py     # writes results/ (trades.csv, charts, metrics.json)
 ```
 
+## Web dashboard
+
+An interactive dashboard (KPIs, equity/drawdown/yearly charts, a sortable &
+filterable 259-trade table, and the latest signal) lives in [`docs/`](docs/).
+
+```bash
+python scripts/build_dashboard.py  # regenerates docs/data.js from the backtest
+open docs/index.html               # view locally (works standalone, no server)
+```
+
+To publish it as a website, make the repo public (or use GitHub Pro for private
+Pages), then enable **Settings → Pages → Source: `main` / `/docs`**. The URL will
+be `https://durant0509.github.io/crypto_test/`. The dashboard's "latest signal"
+reflects the backtest dataset's last candle; the live bot polls the real-time
+ratio.
+
 ## Run the live bot (testnet)
 
 ```bash
