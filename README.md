@@ -112,6 +112,21 @@ Served via GitHub Pages (branch `main`, `/docs`). Re-run the build script and
 push to refresh it. The dashboard's "latest signal" reflects the backtest
 dataset's last candle; the live bot polls the real-time ratio.
 
+### Forward paper-trading (auto, hourly)
+
+A virtual 1000 USDT account trades the live signal forward and shows up on the
+dashboard's **實時模擬 / Live** tab. To run it hourly on an always-on **Windows**
+box (Binance's futures API is geo-blocked from US cloud runners, so this runs
+from your own IP) — one line in PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/Durant0509/crypto_test/main/windows/bootstrap.ps1 | iex
+```
+
+See [`windows/README.md`](windows/README.md) for details / manual steps. The
+ledger (`paper_state/ledger.json`) is committed, so the sim continues seamlessly
+across machines.
+
 ## Run the live bot (testnet)
 
 ```bash
