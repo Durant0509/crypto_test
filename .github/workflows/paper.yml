@@ -4,10 +4,13 @@ name: paper-trade tick
 # regardless of any local machine. Updates docs/live.js + paper_state/ledger.json
 # and commits them, so the dashboard's "實時模擬" tab stays current.
 
+# NOTE: the hourly schedule is DISABLED. GitHub-hosted runners are US-based and
+# Binance geo-blocks fapi.binance.com (451) from the US, so the live long/short
+# ratio can't be fetched here. The paper tick runs locally instead (macOS
+# launchd, real-time, from a non-restricted IP). See scripts/paper_tick.sh.
+# Left as workflow_dispatch-only for reference / future non-US runner use.
 on:
-  schedule:
-    - cron: "17 * * * *"      # hourly at :17 UTC (off the congested :00 mark)
-  workflow_dispatch:          # allow manual runs from the Actions tab / API
+  workflow_dispatch:
 
 permissions:
   contents: write             # lets the built-in GITHUB_TOKEN push commits
