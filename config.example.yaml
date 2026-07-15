@@ -1,0 +1,26 @@
+# Copy to config.yaml and fill in your Binance FUTURES TESTNET keys.
+# config.yaml is gitignored — never commit real keys.
+# Get testnet keys at: https://testnet.binancefuture.com/
+
+symbol: BTCUSDT
+
+# Binance USDⓈ-M FUTURES TESTNET api key/secret (paper money).
+api_key: "YOUR_TESTNET_API_KEY"
+api_secret: "YOUR_TESTNET_API_SECRET"
+# base_url: https://testnet.binancefuture.com   # default; do not point at prod
+
+# --- risk / sizing ---
+base_notional: 1000     # reference USDT notional, scaled by the inverse-vol multiplier
+max_notional: 3000      # HARD CAP on position notional (USDT) — never exceeded
+dry_run: true           # true = compute & log only, never send an order. Flip to false to trade testnet.
+
+# --- strategy parameters (match the backtest defaults) ---
+strategy:
+  lookback_days: 90     # percentile window for the long/short ratio
+  upper_pct: 0.90       # ratio >= 90th pct -> SHORT (retail crowded long)
+  lower_pct: 0.10       # ratio <= 10th pct -> LONG  (retail crowded short)
+  hold_days: 3          # time exit; no stop-loss (by design)
+  vol_window_hours: 72
+  target_daily_vol: 0.025
+  size_min: 0.25
+  size_max: 3.0

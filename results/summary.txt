@@ -1,0 +1,17 @@
+Period            : 2022-01-01 .. 2026-06-30  (4.49 yrs)
+Cumulative return : +256.7%   (buy&hold BTC: +28.2%)
+CAGR              : +32.7%
+Sharpe (daily)    : 1.31
+Max drawdown      : -24.5%
+Trades            : 259  (long 130 / short 129)
+Win rate          : 52.5%
+Avg win / loss    : +45.9 / -28.3  (base notional 1000)
+Profit factor     : 1.79
+Total P&L         : +2760.6  (on 1000 nominal)
+Daily corr w/ BTC : -0.08
+Yearly returns    :
+    2022: strategy   +18%   buy&hold   -65%
+    2023: strategy  +108%   buy&hold  +156%
+    2024: strategy   +82%   buy&hold  +121%
+    2025: strategy   +34%   buy&hold    -6%
+    2026: strategy   +15%   buy&hold   -32%

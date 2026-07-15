@@ -1,0 +1,137 @@
+"""
+Event-driven backtest for the Retail Long/Short-Ratio Reversion strategy.
+
+Design choices that keep the result honest:
+  * No look-ahead: a signal computed from bar t's close/ratio is executed at the
+    OPEN of bar t+1 (you can only act after you've seen the hourly close).
+  * One position at a time, one action per candle (matches the live bot's
+    "same K-line never double-orders" idempotency guarantee).
+  * Fixed 3-day time exit, NO stop-loss (the spec's core, counter-intuitive
+    design). A position is marked-to-market every hour so the equity curve and
+    drawdown reflect the unrealised pain you'd actually sit through.
+  * Fixed nominal sizing, no compounding: every trade risks `base_notional`
+    scaled by the inverse-vol multiplier. Returns are P&L / base_notional, so
+    they're comparable across the whole period regardless of account growth.
+  * Costs (taker fee + slippage) charged on entry and on exit.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+
+import numpy as np
+import pandas as pd
+
+from ..strategy.signal import FLAT, Params, compute
+
+
+@dataclass
+class Costs:
+    fee_rate: float = 0.0004       # Binance USD-M taker fee per side (0.04%)
+    slippage: float = 0.0002       # assumed slippage per side (0.02%)
+
+    @property
+    def per_side(self) -> float:
+        return self.fee_rate + self.slippage
+
+
+@dataclass
+class BacktestConfig:
+    base_notional: float = 1000.0
+    start: str = "2022-01-01"      # trading starts here (data before = warmup)
+    end: str | None = None
+    params: Params = field(default_factory=Params)
+    costs: Costs = field(default_factory=Costs)
+
+
+@dataclass
+class BacktestResult:
+    trades: pd.DataFrame
+    equity: pd.Series              # hourly, mark-to-market, starts at base_notional
+    signals: pd.DataFrame          # full signal frame (for inspection)
+    config: BacktestConfig
+
+
+def run(df: pd.DataFrame, cfg: BacktestConfig = BacktestConfig()) -> BacktestResult:
+    sig = compute(df, cfg.params)
+
+    start = pd.Timestamp(cfg.start, tz="UTC")
+    end = pd.Timestamp(cfg.end, tz="UTC") if cfg.end else sig.index.max()
+    mask = (sig.index >= start) & (sig.index <= end)
+    win = sig.loc[mask]
+
+    opens = win["open"].to_numpy(dtype=float)
+    closes = win["close"].to_numpy(dtype=float)
+    targets = win["target"].to_numpy(dtype=int)
+    sizes = win["size"].to_numpy(dtype=float)
+    idx = win.index
+    n = len(win)
+
+    base = cfg.base_notional
+    cps = cfg.costs.per_side
+    hold = cfg.params.hold_hours
+
+    realized = 0.0
+    equity = np.full(n, base, dtype=float)
+    trades: list[dict] = []
+
+    pos_side = 0          # 0 flat, +1 long, -1 short
+    entry_i = -1
+    entry_px = 0.0
+    notional = 0.0
+
+    for i in range(1, n):
+        # ----- exit: 3-day time stop, executed at this bar's open ------------
+        if pos_side != 0 and (i - entry_i) >= hold:
+            exit_px = opens[i]
+            gross = pos_side * (exit_px / entry_px - 1.0)
+            cost = notional * cps * 2.0            # entry + exit legs
+            pnl = notional * gross - cost
+            realized += pnl
+            trades.append({
+                "entry_time": idx[entry_i], "exit_time": idx[i],
+                "side": "LONG" if pos_side == 1 else "SHORT",
+                "entry_px": entry_px, "exit_px": exit_px,
+                "size_mult": notional / base, "notional": notional,
+                "gross_return": gross, "pnl": pnl, "win": pnl > 0,
+                "hold_hours": i - entry_i,
+            })
+            pos_side, entry_i, entry_px, notional = 0, -1, 0.0, 0.0
+
+        # ----- entry: act on the previous bar's signal, at this bar's open ---
+        if pos_side == 0 and targets[i - 1] != FLAT:
+            mult = sizes[i - 1]
+            if np.isfinite(mult) and mult > 0:
+                pos_side = int(targets[i - 1])
+                entry_i = i
+                entry_px = opens[i]
+                notional = base * mult
+                # entry cost realised immediately (felt in equity right away)
+                realized -= notional * cps
+
+        # ----- mark-to-market equity ----------------------------------------
+        if pos_side != 0:
+            unreal = notional * pos_side * (closes[i] / entry_px - 1.0)
+            equity[i] = base + realized + unreal
+        else:
+            equity[i] = base + realized
+
+    # close any position still open at the end, at the last close
+    if pos_side != 0:
+        exit_px = closes[-1]
+        gross = pos_side * (exit_px / entry_px - 1.0)
+        cost = notional * cps            # exit leg only (entry already charged)
+        pnl = notional * gross - cost
+        realized += pnl
+        trades.append({
+            "entry_time": idx[entry_i], "exit_time": idx[-1],
+            "side": "LONG" if pos_side == 1 else "SHORT",
+            "entry_px": entry_px, "exit_px": exit_px,
+            "size_mult": notional / base, "notional": notional,
+            "gross_return": gross, "pnl": pnl, "win": pnl > 0,
+            "hold_hours": (n - 1) - entry_i,
+        })
+        equity[-1] = base + realized
+
+    trades_df = pd.DataFrame(trades)
+    equity_s = pd.Series(equity, index=idx, name="equity")
+    return BacktestResult(trades=trades_df, equity=equity_s, signals=win, config=cfg)
