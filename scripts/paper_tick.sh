@@ -14,6 +14,7 @@ mkdir -p "$REPO/data"
 
 {
   echo "=== $(date -u +%Y-%m-%dT%H:%M:%SZ) tick start ==="
+  "$GIT" pull --rebase --autostash 2>&1   # pull first so code changes apply this tick
   if "$PY" scripts/paper_tick.py; then
     "$GIT" add docs/live.js paper_state/ledger.json
     if "$GIT" diff --cached --quiet; then

@@ -10,9 +10,10 @@ New-Item -ItemType Directory -Force -Path (Join-Path $repo "data") | Out-Null
 $ts = [DateTime]::UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ")
 Add-Content $log "=== $ts tick start ==="
 
+# pull FIRST so code changes take effect this tick (not one tick later)
+git pull --rebase --autostash 2>&1 | Add-Content $log
 & $py "scripts\paper_tick.py" 2>&1 | Add-Content $log
 if ($LASTEXITCODE -eq 0) {
-    git pull --rebase --autostash 2>&1 | Add-Content $log
     git add docs/live.js paper_state/ledger.json 2>&1 | Add-Content $log
     git diff --cached --quiet
     if ($LASTEXITCODE -ne 0) {
