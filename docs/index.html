@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>散戶多空比反轉 · Backtest Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#0d1417; --panel:#121e1f; --panel2:#0f1a1b; --border:#213133;
+    --tx:#e7eef0; --mut:#849399;
+    --teal:#2dd4bf; --tealdim:#0f6674; --gray:#7f9298; --red:#e0574a; --green:#37c98b; --amber:#e0b34a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--tx);
+    font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",Roboto,Helvetica,Arial,sans-serif;}
+  a{color:var(--teal)}
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 20px 64px}
+  header .badge{display:inline-block;font-size:12px;letter-spacing:.04em;color:var(--amber);
+    border:1px solid #4a3d1e;background:#1c1708;padding:3px 9px;border-radius:999px;margin-bottom:14px}
+  h1{font-size:26px;margin:0 0 4px;font-weight:650;letter-spacing:-.01em}
+  .sub{color:var(--mut);font-size:14px;margin:0 0 22px}
+  .grid{display:grid;gap:14px}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px 20px}
+  .panel h2{font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin:0 0 14px}
+
+  /* signal banner */
+  .signal{display:flex;flex-wrap:wrap;align-items:center;gap:22px;margin-bottom:16px}
+  .signal .tag{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}
+  .signal .big{font-size:30px;font-weight:700;line-height:1}
+  .pill{font-size:15px;font-weight:700;padding:6px 16px;border-radius:10px}
+  .pill.FLAT{background:#1b2729;color:var(--gray)}
+  .pill.LONG{background:#0f2e22;color:var(--green)}
+  .pill.SHORT{background:#331716;color:var(--red)}
+  .sig-item{display:flex;flex-direction:column;gap:3px}
+
+  /* KPI */
+  .kpis{grid-template-columns:repeat(4,1fr)}
+  .kpi{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px 18px}
+  .kpi .label{font-size:12px;color:var(--mut);margin-bottom:6px}
+  .kpi .val{font-size:24px;font-weight:700;letter-spacing:-.01em}
+  .kpi .sub{font-size:12px;color:var(--mut);margin:2px 0 0}
+  .pos{color:var(--green)} .neg{color:var(--red)} .tealtx{color:var(--teal)}
+
+  .two{grid-template-columns:1fr 1fr}
+  canvas{width:100%!important}
+  .chart-tall{height:340px} .chart-mid{height:240px}
+
+  /* table */
+  .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+  .controls .seg{display:flex;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+  .controls button{background:var(--panel2);color:var(--mut);border:0;padding:6px 13px;font-size:13px;cursor:pointer}
+  .controls button.on{background:var(--tealdim);color:#eafffb}
+  .controls .stat{margin-left:auto;color:var(--mut);font-size:13px}
+  .tblwrap{max-height:520px;overflow:auto;border:1px solid var(--border);border-radius:10px}
+  table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+  th,td{padding:8px 12px;text-align:right;white-space:nowrap}
+  th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
+  thead th{position:sticky;top:0;background:#0c1516;color:var(--mut);font-weight:600;cursor:pointer;
+    border-bottom:1px solid var(--border);user-select:none}
+  thead th:hover{color:var(--tx)}
+  tbody tr:nth-child(even){background:#0f1a1b}
+  tbody tr:hover{background:#16282a}
+  .s-LONG{color:var(--green);font-weight:600}.s-SHORT{color:var(--red);font-weight:600}
+  .muted{color:var(--mut)}
+  ul.rules{margin:0;padding-left:18px} ul.rules li{margin:6px 0}
+  .foot{color:var(--mut);font-size:12.5px;margin-top:26px;line-height:1.7}
+  @media(max-width:820px){.kpis{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="badge">歷史模擬 · 非實際交易績效 · 測試網運行中</span>
+    <h1>散戶多空比反轉 <span class="muted" style="font-weight:400">Retail L/S Reversion · BTC 永續</span></h1>
+    <p class="sub" id="subline"></p>
+  </header>
+
+  <!-- latest signal -->
+  <div class="panel signal" id="signal"></div>
+
+  <!-- KPIs -->
+  <div class="grid kpis" id="kpis" style="margin-bottom:14px"></div>
+
+  <!-- equity + drawdown -->
+  <div class="panel" style="margin-bottom:14px">
+    <h2>累積報酬（模擬）vs 買入持有 BTC</h2>
+    <div class="chart-tall"><canvas id="equity"></canvas></div>
+  </div>
+  <div class="grid two" style="margin-bottom:14px">
+    <div class="panel">
+      <h2>水下圖 · 距高點回撤</h2>
+      <div class="chart-mid"><canvas id="dd"></canvas></div>
+    </div>
+    <div class="panel">
+      <h2>逐年報酬</h2>
+      <div class="chart-mid"><canvas id="yearly"></canvas></div>
+    </div>
+  </div>
+
+  <!-- trades -->
+  <div class="panel" style="margin-bottom:14px">
+    <h2>交易明細</h2>
+    <div class="controls">
+      <div class="seg" id="fltSide">
+        <button data-v="ALL" class="on">全部</button><button data-v="LONG">做多</button><button data-v="SHORT">做空</button>
+      </div>
+      <div class="seg" id="fltRes">
+        <button data-v="ALL" class="on">全部</button><button data-v="WIN">獲利</button><button data-v="LOSS">虧損</button>
+      </div>
+      <span class="stat" id="tblStat"></span>
+    </div>
+    <div class="tblwrap">
+      <table id="tbl">
+        <thead><tr>
+          <th data-k="entry">進場時間</th><th data-k="exit">出場時間</th><th data-k="side">方向</th>
+          <th data-k="entry_px">進場價</th><th data-k="exit_px">出場價</th>
+          <th data-k="size">部位x</th><th data-k="notional">名目</th>
+          <th data-k="ret">報酬%</th><th data-k="pnl">盈虧</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- rules -->
+  <div class="grid two">
+    <div class="panel">
+      <h2>策略規則</h2>
+      <ul class="rules" id="rules"></ul>
+    </div>
+    <div class="panel">
+      <h2>尚未證明的事</h2>
+      <ul class="rules muted">
+        <li>指標是<b>公開的</b>——越多人做，優勢越可能被吃掉。</li>
+        <li>所有檢驗都在<b>已發生</b>的資料上；真正樣本外是未來。</li>
+        <li>回撤可能比 −25% 更大；單一交易所倉位 ≠ 全市場。</li>
+        <li>真實下單滑價可能比模擬假設更差。</li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="foot" id="foot"></p>
+</div>
+
+<script src="data.js"></script>
+<script>
+const D = window.DASHBOARD, M = D.metrics, P = D.params;
+const fmtPct = (x,d=1)=> (x>=0?"+":"")+x.toFixed(d)+"%";
+const cls = x => x>=0?"pos":"neg";
+
+// subline
+document.getElementById("subline").textContent =
+  `比特幣永續 · 1h · 回測區間 ${M.period}（${M.years} 年，${M.num_trades} 筆交易）· 資料截至 ${D.generated}`;
+
+// signal banner
+const L = D.latest;
+document.getElementById("signal").innerHTML = `
+  <div class="sig-item"><span class="tag">目前訊號（${L.candle}）</span>
+    <span class="pill ${L.target}">${L.target==="FLAT"?"觀望 FLAT":(L.target==="LONG"?"做多 LONG":"做空 SHORT")}</span></div>
+  <div class="sig-item"><span class="tag">多空比 LSR</span><span class="big">${L.lsr}</span></div>
+  <div class="sig-item"><span class="tag">90天百分位</span><span class="big">${L.pct}%</span></div>
+  <div class="sig-item"><span class="tag">反波動部位</span><span class="big">${L.size}×</span></div>
+  <div class="sig-item"><span class="tag">BTC 收盤</span><span class="big">$${L.close.toLocaleString()}</span></div>`;
+
+// KPIs
+const kpis = [
+  ["累積報酬（模擬）", fmtPct(M.total_return*100), cls(M.total_return), `買入持有 BTC ${fmtPct(M.buy_hold_return*100)}`],
+  ["年化報酬 CAGR", fmtPct(M.cagr*100), cls(M.cagr), `Sharpe ${M.sharpe.toFixed(2)}`],
+  ["最大回撤", (M.max_drawdown*100).toFixed(1)+"%", "neg", "無停損（刻意設計）"],
+  ["勝率", (M.win_rate*100).toFixed(1)+"%", "tealtx", `多 ${M.num_long} / 空 ${M.num_short}`],
+  ["平均獲利 / 虧損", `+${M.avg_win.toFixed(0)} / ${M.avg_loss.toFixed(0)}`, "", `每 1000 名目 · 獲利因子 ${M.profit_factor.toFixed(2)}`],
+  ["累積淨利", (M.total_pnl>=0?"+":"")+M.total_pnl.toFixed(0), cls(M.total_pnl), "以 1000 名目本金計"],
+  ["交易頻率", "每 "+(M.years*365/M.num_trades).toFixed(1)+" 天", "", `${M.num_trades} 筆 / ${M.years} 年`],
+  ["與 BTC 日相關", (M.btc_daily_corr>=0?"+":"")+M.btc_daily_corr.toFixed(2), "tealtx", "≈ 長期市場中性"],
+];
+document.getElementById("kpis").innerHTML = kpis.map(k=>`
+  <div class="kpi"><div class="label">${k[0]}</div>
+  <div class="val ${k[2]}">${k[1]}</div><div class="sub">${k[3]}</div></div>`).join("");
+
+Chart.defaults.color = "#849399";
+Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
+Chart.defaults.borderColor = "#1c2a2c";
+const labels = D.equity.map(r=>r.d);
+const thin = {radius:0, borderWidth:1.6, tension:.05};
+const xAxis = {ticks:{maxTicksLimit:9, autoSkip:true}, grid:{display:false}};
+
+// equity
+new Chart(document.getElementById("equity"),{
+  type:"line",
+  data:{labels, datasets:[
+    {label:"本策略（模擬）", data:D.equity.map(r=>r.strat), borderColor:"#2dd4bf", backgroundColor:"#2dd4bf", ...thin, fill:false},
+    {label:"買入持有 BTC", data:D.equity.map(r=>r.bh), borderColor:"#7f9298", borderDash:[5,4], ...thin, fill:false},
+  ]},
+  options:{maintainAspectRatio:false, interaction:{mode:"index",intersect:false},
+    plugins:{legend:{labels:{boxWidth:12,boxHeight:2}},
+      tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${fmtPct(c.parsed.y)}`}}},
+    scales:{x:xAxis, y:{ticks:{callback:v=>v+"%"}, grid:{color:"#162325"}}}}
+});
+// drawdown
+new Chart(document.getElementById("dd"),{
+  type:"line",
+  data:{labels, datasets:[{data:D.equity.map(r=>r.dd), borderColor:"#e0574a",
+    backgroundColor:"rgba(224,87,74,.28)", ...thin, fill:true}]},
+  options:{maintainAspectRatio:false, plugins:{legend:{display:false},
+    tooltip:{callbacks:{label:c=>` 回撤 ${c.parsed.y.toFixed(1)}%`}}},
+    scales:{x:xAxis, y:{ticks:{callback:v=>v+"%"}, grid:{color:"#162325"}}}}
+});
+// yearly
+const yrs = Object.keys(M.yearly).sort();
+new Chart(document.getElementById("yearly"),{
+  type:"bar",
+  data:{labels:yrs, datasets:[
+    {label:"本策略", data:yrs.map(y=>Math.round((M.yearly[y].strategy||0)*100)), backgroundColor:"#2dd4bf"},
+    {label:"買入持有", data:yrs.map(y=>Math.round((M.yearly[y].buy_hold||0)*100)), backgroundColor:"#7f9298"},
+  ]},
+  options:{maintainAspectRatio:false,
+    plugins:{legend:{labels:{boxWidth:12,boxHeight:12}},
+      tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${fmtPct(+c.parsed.y,0)}`}}},
+    scales:{x:{grid:{display:false}}, y:{ticks:{callback:v=>v+"%"}, grid:{color:"#162325"}}}}
+});
+
+// rules
+document.getElementById("rules").innerHTML = [
+  `多空比在過去 <b>${P.lookback_days} 天</b>分布的百分位。`,
+  `≥ <b>${P.upper_pct*100}%</b>（散戶擠做多）→ <b class="s-SHORT">做空</b>；≤ <b>${P.lower_pct*100}%</b>（散戶擠做空）→ <b class="s-LONG">做多</b>。`,
+  `持有 <b>${P.hold_days} 天</b>強制平倉，<b>不設停損</b>。`,
+  `反波動部位（目標日波動 ${(P.target_daily_vol*100).toFixed(1)}%，倍數 ${P.size_band[0]}–${P.size_band[1]}×）。`,
+  `成本：手續費 ${(P.fee_rate*100).toFixed(2)}% + 滑價 ${(P.slippage*100).toFixed(2)}% / 邊。`,
+].map(t=>`<li>${t}</li>`).join("");
+
+// ---- trade table ----
+let side="ALL", res="ALL", sortK="entry", sortDir=1;
+const tbody = document.querySelector("#tbl tbody");
+function render(){
+  let rows = D.trades.filter(t=>(side==="ALL"||t.side===side)&&(res==="ALL"||(res==="WIN")===t.win));
+  rows.sort((a,b)=>{let x=a[sortK],y=b[sortK]; if(typeof x==="string"){x=x;y=y;} return (x>y?1:x<y?-1:0)*sortDir;});
+  tbody.innerHTML = rows.map(t=>`<tr>
+    <td class="muted">${t.entry}</td><td class="muted">${t.exit}</td>
+    <td class="s-${t.side}">${t.side==="LONG"?"多":"空"}</td>
+    <td>${t.entry_px.toLocaleString()}</td><td>${t.exit_px.toLocaleString()}</td>
+    <td class="muted">${t.size}×</td><td class="muted">${t.notional.toLocaleString()}</td>
+    <td class="${cls(t.ret)}">${fmtPct(t.ret,2)}</td>
+    <td class="${cls(t.pnl)}"><b>${t.pnl>=0?"+":""}${t.pnl.toFixed(1)}</b></td></tr>`).join("");
+  const pnl = rows.reduce((s,t)=>s+t.pnl,0), w=rows.filter(t=>t.win).length;
+  document.getElementById("tblStat").innerHTML =
+    `${rows.length} 筆 · 勝率 ${rows.length?(w/rows.length*100).toFixed(0):0}% · 合計盈虧 <b class="${cls(pnl)}">${pnl>=0?"+":""}${pnl.toFixed(0)}</b>`;
+}
+document.querySelectorAll("#fltSide button").forEach(b=>b.onclick=()=>{
+  side=b.dataset.v; document.querySelectorAll("#fltSide button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); render();});
+document.querySelectorAll("#fltRes button").forEach(b=>b.onclick=()=>{
+  res=b.dataset.v; document.querySelectorAll("#fltRes button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); render();});
+document.querySelectorAll("#tbl thead th").forEach(th=>th.onclick=()=>{
+  const k=th.dataset.k; sortDir = (sortK===k)? -sortDir : 1; sortK=k; render();});
+render();
+
+document.getElementById("foot").innerHTML =
+  `本頁所有績效數字均為<b>歷史資料模擬（回測）</b>結果，非實際交易績效，不代表未來表現。策略目前僅在 Binance 測試網（模擬資金）運行。加密貨幣槓桿交易可能導致損失超過本金。本頁不構成投資建議。<br>資料來源：Binance Vision 公開歷史資料（K 線 + 全體帳戶多空比）。原始碼與交易明細見 <a href="https://github.com/Durant0509/crypto_test">GitHub repo</a>。`;
+</script>
+</body>
+</html>
