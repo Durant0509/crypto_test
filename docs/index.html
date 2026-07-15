@@ -198,9 +198,8 @@
   <p class="foot" id="foot"></p>
 </div>
 
-<script src="live.js"></script>
-<script src="data.js"></script>
 <script>
+function initDashboard(){
 const D = window.DASHBOARD, M = D.metrics, P = D.params;
 const fmtPct = (x,d=1)=> (x>=0?"+":"")+x.toFixed(d)+"%";
 const cls = x => x>=0?"pos":"neg";
@@ -393,6 +392,17 @@ function renderLive(V){
     <td class="muted">${t.equity_after}</td></tr>`).join("")
     : '<tr><td colspan="9" class="empty">尚無已平倉交易</td></tr>';
 }
+}  // end initDashboard
+
+// Load data.js + live.js with a cache-buster so the hourly updates show on a
+// normal refresh (GitHub Pages caches assets for 10 min otherwise).
+function loadScript(src){return new Promise((ok,err)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=err;document.head.appendChild(s);});}
+(async()=>{
+  const v = "?t=" + Date.now();
+  try { await loadScript("data.js"+v); } catch(e){ console.error("data.js failed", e); }
+  try { await loadScript("live.js"+v); } catch(e){ /* live.js optional before first tick */ }
+  initDashboard();
+})();
 </script>
 </body>
 </html>
