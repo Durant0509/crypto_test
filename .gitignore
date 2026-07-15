@@ -16,10 +16,9 @@ __pycache__/
 .ipynb_checkpoints/
 
 # --- runtime data & downloads (large / regenerable) ---
-# The whole data/ dir is runtime state: raw dumps, merged parquet,
-# the live bot's rolling store, state json, HALT flag, logs.
-data/
-!data/.gitkeep
+# Root-anchored so it does NOT match the src/data/ package.
+/data/
+!/data/.gitkeep
 
 # NOTE: results/ (backtest charts, trade log, metrics) IS committed on purpose,
 # so the repo is self-documenting.
