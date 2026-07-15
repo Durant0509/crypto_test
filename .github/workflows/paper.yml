@@ -1,0 +1,48 @@
+name: paper-trade tick
+
+# Hourly forward paper-trading tick, run in the cloud so it keeps going 24/7
+# regardless of any local machine. Updates docs/live.js + paper_state/ledger.json
+# and commits them, so the dashboard's "實時模擬" tab stays current.
+
+on:
+  schedule:
+    - cron: "17 * * * *"      # hourly at :17 UTC (off the congested :00 mark)
+  workflow_dispatch:          # allow manual runs from the Actions tab / API
+
+permissions:
+  contents: write             # lets the built-in GITHUB_TOKEN push commits
+
+concurrency:
+  group: paper-tick
+  cancel-in-progress: false
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Run paper tick
+        env:
+          # override if fapi.binance.com is geo-blocked from the runner
+          BINANCE_MARKET_HOST: ${{ vars.BINANCE_MARKET_HOST || 'https://fapi.binance.com' }}
+        run: python scripts/paper_tick.py
+
+      - name: Commit updated state
+        run: |
+          git config user.name "paper-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add docs/live.js paper_state/ledger.json
+          if git diff --cached --quiet; then
+            echo "no changes"
+          else
+            git commit -m "paper tick $(date -u +%Y-%m-%dT%H:%MZ)"
+            git push
+          fi

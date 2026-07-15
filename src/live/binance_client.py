@@ -16,19 +16,30 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import os
 import time
 from urllib.parse import urlencode
 
 import requests
 
 TESTNET = "https://testnet.binancefuture.com"
-PROD_DATA = "https://fapi.binance.com"      # public futures/data (ratio) only
+PROD = "https://fapi.binance.com"           # real futures market data (klines, ratio, mark)
+
+# Public market-data host can be overridden (e.g. if fapi.binance.com is
+# geo-blocked from a CI runner, point this at an accessible mirror/proxy).
+MARKET_HOST = os.environ.get("BINANCE_MARKET_HOST", PROD).rstrip("/")
 
 
 class BinanceFutures:
+    """Signed order/account calls go to `base_url` (testnet by default); public
+    market data (klines, mark price, long/short ratio, exchangeInfo) goes to
+    `market_host` — real prod data, so paper/live signals use real prices."""
+
     def __init__(self, api_key: str = "", api_secret: str = "",
-                 base_url: str = TESTNET, recv_window: int = 5000):
+                 base_url: str = TESTNET, market_host: str = MARKET_HOST,
+                 recv_window: int = 5000):
         self.base_url = base_url.rstrip("/")
+        self.market_host = market_host.rstrip("/")
         self.api_key = api_key
         self.api_secret = api_secret.encode()
         self.recv_window = recv_window
@@ -61,20 +72,22 @@ class BinanceFutures:
         r.raise_for_status()
         return r.json()
 
-    # --- public data ------------------------------------------------------- #
+    # --- public market data (real prod host) ------------------------------- #
     def klines(self, symbol: str, interval: str = "1h", limit: int = 500) -> list:
-        return self._get("/fapi/v1/klines", {"symbol": symbol, "interval": interval, "limit": limit})
+        return self._get("/fapi/v1/klines", {"symbol": symbol, "interval": interval, "limit": limit},
+                         base=self.market_host)
 
     def long_short_ratio(self, symbol: str, period: str = "1h", limit: int = 500) -> list:
-        """Global long/short ACCOUNT ratio — read from the production data host."""
+        """Global long/short ACCOUNT ratio — the strategy's signal input."""
         return self._get("/futures/data/globalLongShortAccountRatio",
-                         {"symbol": symbol, "period": period, "limit": limit}, base=PROD_DATA)
+                         {"symbol": symbol, "period": period, "limit": limit}, base=self.market_host)
 
     def mark_price(self, symbol: str) -> float:
-        return float(self._get("/fapi/v1/premiumIndex", {"symbol": symbol})["markPrice"])
+        return float(self._get("/fapi/v1/premiumIndex", {"symbol": symbol},
+                               base=self.market_host)["markPrice"])
 
     def step_size(self, symbol: str) -> float:
-        info = self._get("/fapi/v1/exchangeInfo")
+        info = self._get("/fapi/v1/exchangeInfo", base=self.market_host)
         for s in info["symbols"]:
             if s["symbol"] == symbol:
                 for f in s["filters"]:
