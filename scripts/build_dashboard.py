@@ -26,6 +26,14 @@ DATA = ROOT / "data" / "hourly.parquet"
 OUT = ROOT / "docs" / "data.js"
 
 
+def fmt8(ts) -> str:
+    """Format a timestamp as UTC+8 (Taipei) 'YYYY-MM-DD HH:MM'."""
+    t = pd.Timestamp(ts)
+    if t.tzinfo is None:
+        t = t.tz_localize("UTC")
+    return (t.tz_convert("UTC").tz_localize(None) + pd.Timedelta(hours=8)).strftime("%Y-%m-%d %H:%M")
+
+
 def main():
     df = pd.read_parquet(DATA)
     cfg = BacktestConfig(start="2022-01-01", end="2026-06-30")
@@ -54,8 +62,8 @@ def main():
     trades = []
     for _, t in res.trades.iterrows():
         trades.append({
-            "entry": pd.Timestamp(t["entry_time"]).strftime("%Y-%m-%d %H:%M"),
-            "exit": pd.Timestamp(t["exit_time"]).strftime("%Y-%m-%d %H:%M"),
+            "entry": fmt8(t["entry_time"]),
+            "exit": fmt8(t["exit_time"]),
             "side": t["side"],
             "entry_px": round(float(t["entry_px"]), 1),
             "exit_px": round(float(t["exit_px"]), 1),
@@ -71,7 +79,7 @@ def main():
     last = sig.dropna(subset=["pct"]).iloc[-1]
     tgt = int(last["target"])
     latest = {
-        "candle": sig.dropna(subset=["pct"]).index[-1].strftime("%Y-%m-%d %H:%M UTC"),
+        "candle": fmt8(sig.dropna(subset=["pct"]).index[-1]) + " UTC+8",
         "lsr": round(float(last["lsr"]), 3),
         "pct": round(float(last["pct"]) * 100, 1),
         "size": round(float(last["size"]), 2),

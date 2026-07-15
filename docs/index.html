@@ -311,7 +311,7 @@ document.querySelectorAll("#tbl thead th").forEach(th=>th.onclick=()=>{
 render();
 
 document.getElementById("foot").innerHTML =
-  `本頁所有績效數字均為<b>歷史資料模擬（回測）</b>結果，非實際交易績效，不代表未來表現。策略目前僅在 Binance 測試網（模擬資金）運行。加密貨幣槓桿交易可能導致損失超過本金。本頁不構成投資建議。<br>資料來源：Binance Vision 公開歷史資料（K 線 + 全體帳戶多空比）。原始碼與交易明細見 <a href="https://github.com/Durant0509/crypto_test">GitHub repo</a>。`;
+  `本頁所有績效數字均為<b>歷史資料模擬（回測）</b>結果，非實際交易績效，不代表未來表現。策略目前僅在 Binance 測試網（模擬資金）運行。加密貨幣槓桿交易可能導致損失超過本金。本頁不構成投資建議。<br>資料來源：Binance Vision 公開歷史資料（K 線 + 全體帳戶多空比）。原始碼與交易明細見 <a href="https://github.com/Durant0509/crypto_test">GitHub repo</a>。<br>頁面所有時間為 <b>UTC+8（台北時間）</b>。`;
 
 // ==================== tabs ====================
 const TABS={live:["tab-live","view-live"], bt:["tab-bt","view-backtest"]};
@@ -364,7 +364,7 @@ function renderLive(V){
         <div><div class="k">目前浮動盈虧</div><div class="v ${cls(p.unrealized)}">${p.unrealized>=0?"+":""}${p.unrealized} U (${fmtPct(p.unrealized_pct,2)})</div></div>
       </div>
       <div class="row">
-        <div><div class="k">排定平倉（3天時間出場）</div><div class="v">${p.scheduled_exit_candle.slice(0,16).replace("T"," ")} UTC · 還有 ${p.hours_left}h</div></div>
+        <div><div class="k">排定平倉（3天時間出場）</div><div class="v">${p.scheduled_exit_candle.slice(0,16).replace("T"," ")} UTC+8 · 還有 ${p.hours_left}h</div></div>
         <div><div class="k">參考風險價位（不觸發平倉）</div><div class="v">−10% @ $${p.ref_levels.minus10.toLocaleString()} · −20% @ $${p.ref_levels.minus20.toLocaleString()}</div></div>
       </div>
       <div class="note">⚠️ 本策略<b>不設停損／停利</b>——進場後持有 3 天強制平倉。上方「參考風險價位」只是告訴你價格走到哪帳戶會浮虧 −10%／−20%，<b>不是停損單、不會自動平倉</b>。</div>

@@ -42,6 +42,18 @@ def _now_hour() -> pd.Timestamp:
     return pd.Timestamp.now(tz="UTC").floor("1h")
 
 
+def fmt8(ts) -> str:
+    """Display a timestamp as UTC+8 (Taipei) wall clock 'YYYY-MM-DD HH:MM'.
+
+    Ledger/internal timestamps stay in UTC; only the dashboard payload is
+    localised. Taiwan is a fixed UTC+8 (no DST), so a plain +8h shift is exact.
+    """
+    t = pd.Timestamp(ts)
+    if t.tzinfo is None:
+        t = t.tz_localize("UTC")
+    return (t.tz_convert("UTC").tz_localize(None) + pd.Timedelta(hours=8)).strftime("%Y-%m-%d %H:%M")
+
+
 def _load_ledger() -> dict:
     if LEDGER.exists():
         return json.loads(LEDGER.read_text())
@@ -162,6 +174,8 @@ def _write_live_js(led, sig, bar, candle_ts, price, unrealized) -> None:
         exit_c = pd.Timestamp(p["scheduled_exit_candle"])
         pos_out = {
             **p,
+            "entry_time": fmt8(p["entry_time"]),                  # display in UTC+8
+            "scheduled_exit_candle": fmt8(p["scheduled_exit_candle"]),
             "unrealized": round(unrealized, 2),
             "unrealized_pct": round(unrealized / led["start_equity"] * 100, 2),
             "age_h": round((candle_ts - pd.Timestamp(p["entry_candle"])) / pd.Timedelta(hours=1)),
@@ -170,16 +184,21 @@ def _write_live_js(led, sig, bar, candle_ts, price, unrealized) -> None:
     trades = led["trades"]
     wins = sum(1 for t in trades if t["win"])
     tgt = int(bar["target"])
+    # localise trade + equity-curve timestamps to UTC+8 for display
+    trades_out = []
+    for t in trades[-100:][::-1]:
+        trades_out.append({**t, "entry_time": fmt8(t["entry_time"]), "exit_time": fmt8(t["exit_time"])})
+    equity_out = [{**e, "t": fmt8(e["t"])} for e in led["equity_curve"]]
     payload = {
-        "updated": now.strftime("%Y-%m-%d %H:%M UTC"),
-        "start_time": led["start_time"][:16].replace("T", " "),
+        "updated": fmt8(now) + " UTC+8",
+        "start_time": fmt8(led["start_time"]),
         "start_equity": led["start_equity"],
         "equity": round(led["equity"] + unrealized, 2),
         "realized_equity": round(led["equity"], 2),
         "unrealized": round(unrealized, 2),
         "return_pct": round((led["equity"] + unrealized) / led["start_equity"] * 100 - 100, 2),
         "signal": {
-            "candle": candle_ts.strftime("%Y-%m-%d %H:%M UTC"),
+            "candle": fmt8(candle_ts) + " UTC+8",
             "lsr": round(float(bar["lsr"]), 3),
             "pct": round(float(bar["pct"]) * 100, 1),
             "size": round(float(bar["size"]), 2),
@@ -190,8 +209,8 @@ def _write_live_js(led, sig, bar, candle_ts, price, unrealized) -> None:
         "halted": led["halted"],
         "n_trades": len(trades),
         "win_rate": round(wins / len(trades) * 100, 1) if trades else None,
-        "trades": trades[-100:][::-1],           # most recent first
-        "equity_curve": led["equity_curve"],
+        "trades": trades_out,                    # most recent first, UTC+8
+        "equity_curve": equity_out,
     }
     LIVE_JS.parent.mkdir(parents=True, exist_ok=True)
     LIVE_JS.write_text("window.LIVE = " + json.dumps(payload, default=str) + ";\n")
