@@ -66,8 +66,10 @@ def research_log():
          "evidence": "IC/IR 顯示大戶與散戶同向（非正交）；共振閘門把 Sharpe 腰斬（BTC 1.55→0.73）。樣本內就失敗。"},
         {"idea": "Coinbase Premium 方向濾網", "status": "已否決", "impact": "—",
          "evidence": "溢價正交、正 IC，但當濾網無法提升樣本外 Sharpe（BTC 1.58→1.56、ADA 打平）。唯 DOGE 回撤 -42.6%→-28.5% 可留意。"},
-        {"idea": "資金費率 funding（極端/累積）", "status": "待試", "impact": "高",
-         "evidence": "有 data.binance.vision 完整歷史可離線回測；美元成本口徑，與散戶人數口徑半正交。下一個候選。"},
+        {"idea": "資金費率 funding（極端/累積）", "status": "已否決", "impact": "—",
+         "evidence": "IC 僅 BTC 有效(-0.055)、ADA/DOGE 弱。當獨立反轉訊號慘敗(OOS 全負、回撤-80~-126%)；共振也不提升 OOS Sharpe(BTC 1.58→1.08、ADA 打平)。唯 ADA 共振回撤-21%→-14.5%、勝率65%可留意。"},
+        {"idea": "【meta 教訓】加確認因子普遍無效", "status": "結論", "impact": "高",
+         "evidence": "大戶多空比、Coinbase Premium、funding 三個因子都有 IC/正交，但當確認/濾網都無法提升 OOS Sharpe——會濾掉太多好交易。真正有效的改良在策略機制（45d lookback、正規化出場），不在加因子。"},
         {"idea": "OKX 頂級交易者多空比", "status": "待試（需養資料）", "impact": "高",
          "evidence": "跨交易所聰明錢，最正交；但只有即時、無歷史 → 需架採集器累積數月才能回測。"},
         {"idea": "強平潮 forceOrders", "status": "待試（需養資料）", "impact": "最高",
@@ -94,6 +96,11 @@ def factor_ic_table():
     if cb_btc:
         rows.append({"factor": "Coinbase Premium（新）", "ic": cb_btc["ic_full"],
                      "verdict": _icv(cb_btc["ic_full"])})
+    fund = load("funding.json") or {}
+    fb = (fund.get("BTCUSDT") or {}).get("ic", {}).get("funding", {})
+    if fb.get("ic_full") is not None:
+        rows.append({"factor": "資金費率 funding（新）", "ic": fb["ic_full"],
+                     "verdict": _icv(fb["ic_full"])})
     return rows
 
 

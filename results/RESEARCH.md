@@ -124,6 +124,25 @@ taker vol ratio, OI) to confirm the retail signal. Followed STRATEGY_SOP.md.
   factors. (Untried, would need external data: funding-rate overlay, on-chain
   SOPR/NUPL.)
 
+## 6b. Funding rate — TESTED, REJECTED (2026-07)
+
+Funding = perp 8h payment, a $-cost crowding measure (vs retail head-count). Data:
+data.binance.vision monthly fundingRate dumps. `research/funding.py`.
+- IC vs fwd 72h: BTC −0.055 (useful, negative=fade as expected), ADA −0.025 (weak),
+  DOGE −0.005 (~0). Meaningful only on BTC.
+- Standalone funding-extreme reversion: **fails badly** (OOS BTC −0.01, ADA −0.65,
+  DOGE −0.97; MaxDD −80 to −126%). Funding extremes don't revert like retail L/S.
+- Retail+funding "agree" confluence: **no OOS Sharpe gain** (BTC 1.58→1.08, ADA tie
+  1.68, DOGE 0.33). One note: ADA-agree cuts MaxDD −21%→−14.5% + win 65% at tie-Sharpe
+  (fewer trades, 122) — a possible risk-reduction angle, not a Sharpe win.
+
+**META-LESSON (3 factors now):** top-trader L/S, Coinbase Premium, and funding all
+have real IC / orthogonality but NONE improve out-of-sample Sharpe as a confirming
+filter — they filter out too many good trades. The improvements that DID work are
+strategy MECHANICS (45d lookback, normalize exit), not added factors. Stop hunting
+for confirming factors; if anything, next explore genuinely different alpha
+(liquidation cascades — needs self-collected data) or accept the single-factor edge.
+
 ## 7. Ideas / extensions (ranked — see dashboard 未來方向 tab)
 
 1. Cross-sectional market-neutral basket (diversify single-coin blow-ups).

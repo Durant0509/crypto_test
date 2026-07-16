@@ -1,0 +1,131 @@
+{
+  "BTCUSDT": {
+    "ic": {
+      "symbol": "BTCUSDT",
+      "funding": {
+        "ic_full": -0.0545,
+        "ic_mean_30d": -0.149,
+        "ir": -0.79
+      },
+      "cum_funding": {
+        "ic_full": -0.0488,
+        "ic_mean_30d": -0.1593,
+        "ir": -0.6
+      }
+    },
+    "in_sample": {
+      "baseline": {
+        "sharpe": 1.55,
+        "total_pct": 312,
+        "maxdd_pct": -18.2,
+        "trades": 306,
+        "win_pct": 55.2
+      },
+      "funding_only": {
+        "sharpe": 0.3,
+        "total_pct": 69,
+        "maxdd_pct": -42.5,
+        "trades": 402,
+        "win_pct": 51.7
+      },
+      "agree": {
+        "sharpe": 1.13,
+        "total_pct": 153,
+        "maxdd_pct": -14.5,
+        "trades": 110,
+        "win_pct": 54.5
+      }
+    },
+    "oos_sharpe": {
+      "baseline": 1.58,
+      "funding_only": -0.01,
+      "agree": 1.08
+    }
+  },
+  "ADAUSDT": {
+    "ic": {
+      "symbol": "ADAUSDT",
+      "funding": {
+        "ic_full": -0.0249,
+        "ic_mean_30d": -0.1024,
+        "ir": -0.59
+      },
+      "cum_funding": {
+        "ic_full": -0.0157,
+        "ic_mean_30d": -0.1281,
+        "ir": -0.51
+      }
+    },
+    "in_sample": {
+      "baseline": {
+        "sharpe": 1.61,
+        "total_pct": 338,
+        "maxdd_pct": -21.3,
+        "trades": 306,
+        "win_pct": 53.6
+      },
+      "funding_only": {
+        "sharpe": -0.11,
+        "total_pct": -25,
+        "maxdd_pct": -79.8,
+        "trades": 441,
+        "win_pct": 51.7
+      },
+      "agree": {
+        "sharpe": 1.71,
+        "total_pct": 208,
+        "maxdd_pct": -14.5,
+        "trades": 122,
+        "win_pct": 64.8
+      }
+    },
+    "oos_sharpe": {
+      "baseline": 1.68,
+      "funding_only": -0.65,
+      "agree": 1.68
+    }
+  },
+  "DOGEUSDT": {
+    "ic": {
+      "symbol": "DOGEUSDT",
+      "funding": {
+        "ic_full": -0.0047,
+        "ic_mean_30d": -0.1067,
+        "ir": -0.79
+      },
+      "cum_funding": {
+        "ic_full": -0.0054,
+        "ic_mean_30d": -0.1584,
+        "ir": -0.75
+      }
+    },
+    "in_sample": {
+      "baseline": {
+        "sharpe": 1.07,
+        "total_pct": 238,
+        "maxdd_pct": -42.6,
+        "trades": 306,
+        "win_pct": 49.7
+      },
+      "funding_only": {
+        "sharpe": -0.54,
+        "total_pct": -130,
+        "maxdd_pct": -125.9,
+        "trades": 418,
+        "win_pct": 50.5
+      },
+      "agree": {
+        "sharpe": 0.48,
+        "total_pct": 59,
+        "maxdd_pct": -23.2,
+        "trades": 110,
+        "win_pct": 44.5
+      }
+    },
+    "oos_sharpe": {
+      "baseline": 1.15,
+      "funding_only": -0.97,
+      "agree": 0.33
+    }
+  }
+}
