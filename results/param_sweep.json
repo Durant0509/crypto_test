@@ -1,0 +1,273 @@
+{
+  "lookback": [
+    {
+      "lookback_days": 30,
+      "sharpe": 0.68,
+      "total_%": 152,
+      "maxDD_%": -29.0,
+      "trades": 335,
+      "win_%": 49.6
+    },
+    {
+      "lookback_days": 45,
+      "sharpe": 1.55,
+      "total_%": 312,
+      "maxDD_%": -18.2,
+      "trades": 306,
+      "win_%": 55.2
+    },
+    {
+      "lookback_days": 60,
+      "sharpe": 1.45,
+      "total_%": 289,
+      "maxDD_%": -22.8,
+      "trades": 291,
+      "win_%": 52.2
+    },
+    {
+      "lookback_days": 90,
+      "sharpe": 1.31,
+      "total_%": 257,
+      "maxDD_%": -24.5,
+      "trades": 259,
+      "win_%": 52.5
+    },
+    {
+      "lookback_days": 120,
+      "sharpe": 1.0,
+      "total_%": 185,
+      "maxDD_%": -27.0,
+      "trades": 246,
+      "win_%": 49.2
+    },
+    {
+      "lookback_days": 150,
+      "sharpe": 0.74,
+      "total_%": 128,
+      "maxDD_%": -26.6,
+      "trades": 226,
+      "win_%": 53.5
+    },
+    {
+      "lookback_days": 180,
+      "sharpe": 0.85,
+      "total_%": 149,
+      "maxDD_%": -39.1,
+      "trades": 215,
+      "win_%": 48.8
+    }
+  ],
+  "threshold": [
+    {
+      "cutoff": "80/20",
+      "sharpe": 1.24,
+      "total_%": 266,
+      "maxDD_%": -17.4,
+      "trades": 366,
+      "win_%": 48.4
+    },
+    {
+      "cutoff": "85/15",
+      "sharpe": 1.13,
+      "total_%": 234,
+      "maxDD_%": -15.5,
+      "trades": 317,
+      "win_%": 53.0
+    },
+    {
+      "cutoff": "90/10",
+      "sharpe": 1.31,
+      "total_%": 257,
+      "maxDD_%": -24.5,
+      "trades": 259,
+      "win_%": 52.5
+    },
+    {
+      "cutoff": "95/5",
+      "sharpe": 0.88,
+      "total_%": 144,
+      "maxDD_%": -28.6,
+      "trades": 193,
+      "win_%": 50.3
+    },
+    {
+      "cutoff": "97/2",
+      "sharpe": 0.7,
+      "total_%": 91,
+      "maxDD_%": -28.1,
+      "trades": 138,
+      "win_%": 50.0
+    }
+  ],
+  "hold": [
+    {
+      "hold_days": 1,
+      "sharpe": 0.55,
+      "total_%": 92,
+      "maxDD_%": -31.4,
+      "trades": 587,
+      "win_%": 45.3
+    },
+    {
+      "hold_days": 2,
+      "sharpe": 1.18,
+      "total_%": 212,
+      "maxDD_%": -21.8,
+      "trades": 345,
+      "win_%": 51.6
+    },
+    {
+      "hold_days": 3,
+      "sharpe": 1.31,
+      "total_%": 257,
+      "maxDD_%": -24.5,
+      "trades": 259,
+      "win_%": 52.5
+    },
+    {
+      "hold_days": 4,
+      "sharpe": 1.12,
+      "total_%": 230,
+      "maxDD_%": -29.9,
+      "trades": 212,
+      "win_%": 51.9
+    },
+    {
+      "hold_days": 5,
+      "sharpe": 0.93,
+      "total_%": 195,
+      "maxDD_%": -62.1,
+      "trades": 177,
+      "win_%": 52.0
+    },
+    {
+      "hold_days": 7,
+      "sharpe": 0.64,
+      "total_%": 131,
+      "maxDD_%": -65.7,
+      "trades": 143,
+      "win_%": 51.7
+    },
+    {
+      "hold_days": 10,
+      "sharpe": 0.69,
+      "total_%": 168,
+      "maxDD_%": -50.5,
+      "trades": 109,
+      "win_%": 55.0
+    }
+  ],
+  "vol": [
+    {
+      "vol_target": "fixed 1x",
+      "sharpe": 1.2,
+      "total_%": 184,
+      "maxDD_%": -23.4,
+      "trades": 259,
+      "win_%": 52.5
+    },
+    {
+      "vol_target": 0.015,
+      "sharpe": 1.29,
+      "total_%": 153,
+      "maxDD_%": -16.6,
+      "trades": 259,
+      "win_%": 52.5
+    },
+    {
+      "vol_target": 0.02,
+      "sharpe": 1.29,
+      "total_%": 204,
+      "maxDD_%": -20.8,
+      "trades": 259,
+      "win_%": 52.5
+    },
+    {
+      "vol_target": 0.025,
+      "sharpe": 1.31,
+      "total_%": 257,
+      "maxDD_%": -24.5,
+      "trades": 259,
+      "win_%": 52.5
+    },
+    {
+      "vol_target": 0.03,
+      "sharpe": 1.33,
+      "total_%": 306,
+      "maxDD_%": -27.9,
+      "trades": 259,
+      "win_%": 52.5
+    },
+    {
+      "vol_target": 0.04,
+      "sharpe": 1.31,
+      "total_%": 382,
+      "maxDD_%": -33.6,
+      "trades": 259,
+      "win_%": 52.5
+    }
+  ],
+  "timeframe": [
+    {
+      "timeframe": "1h",
+      "sharpe": 1.31,
+      "total_%": 257,
+      "maxDD_%": -24.5,
+      "trades": 259,
+      "win_%": 52.5
+    },
+    {
+      "timeframe": "2h",
+      "sharpe": 1.31,
+      "total_%": 188,
+      "maxDD_%": -19.9,
+      "trades": 251,
+      "win_%": 55.8
+    },
+    {
+      "timeframe": "4h",
+      "sharpe": 1.27,
+      "total_%": 130,
+      "maxDD_%": -15.8,
+      "trades": 246,
+      "win_%": 56.1
+    }
+  ],
+  "grid": {
+    "45": {
+      "2": 1.05,
+      "3": 1.55,
+      "4": 1.27,
+      "5": 0.93,
+      "7": 0.66
+    },
+    "60": {
+      "2": 1.23,
+      "3": 1.45,
+      "4": 1.0,
+      "5": 1.31,
+      "7": 0.62
+    },
+    "90": {
+      "2": 1.18,
+      "3": 1.31,
+      "4": 1.12,
+      "5": 0.93,
+      "7": 0.64
+    },
+    "120": {
+      "2": 0.66,
+      "3": 1.0,
+      "4": 0.92,
+      "5": 0.28,
+      "7": 0.48
+    },
+    "150": {
+      "2": 0.48,
+      "3": 0.74,
+      "4": 0.65,
+      "5": 0.53,
+      "7": 0.24
+    }
+  }
+}
