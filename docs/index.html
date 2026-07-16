@@ -138,11 +138,13 @@
   <div class="tabs">
     <button id="tab-live" class="on"><span class="dot"></span>實時模擬</button>
     <button id="tab-bt">📊 五年回測</button>
-    <button id="tab-coins">🪙 多幣種</button>
     <button id="tab-params">🎛️ 參數優化</button>
+    <button id="tab-exit">🚪 出場改造</button>
     <button id="tab-lev">⚠️ 槓桿安全</button>
     <button id="tab-wf">🔬 前推驗證</button>
-    <button id="tab-ideas">💡 未來方向</button>
+    <button id="tab-factors">🧪 因子研究</button>
+    <button id="tab-coins">🪙 多幣種</button>
+    <button id="tab-ideas">📋 研究進度</button>
   </div>
 
   <!-- ==================== LIVE PAPER-TRADING VIEW (multi-experiment) ==================== -->
@@ -315,9 +317,33 @@
     </div>
   </section>
 
-  <!-- ==================== IDEAS BACKLOG VIEW ==================== -->
+  <!-- ==================== EXIT REDESIGN VIEW ==================== -->
+  <section id="view-exit">
+    <p class="sub">固定 3 天出場是策略最弱的一環。測試「<b>正規化出場</b>」：多空比百分位回到中性 40–60% 就平倉（反轉完成），5 天為上限。<b>只信樣本外（OOS）</b>，不信樣本內——避免過擬合假象。</p>
+    <div class="panel" style="margin-bottom:14px">
+      <h2>樣本外 Sharpe：固定3天 vs 正規化出場（每幣獨立）</h2>
+      <div class="tblwrap"><table id="exitTbl"><thead></thead><tbody></tbody></table></div>
+      <div class="note" id="exitNote"></div>
+    </div>
+  </section>
+
+  <!-- ==================== FACTOR RESEARCH VIEW ==================== -->
+  <section id="view-factors">
+    <p class="sub">每個候選因子先過 <b>IC/IR 檢驗</b>（IC&gt;0.03 有效、&gt;0.05 強、<b>&gt;0.1 是紅旗</b>＝可能過擬合/資料錯），再看當濾網能不能提升樣本外表現。誠實記錄「測了什麼、結論如何」。</p>
+    <div class="panel" style="margin-bottom:14px">
+      <h2>因子預測力 IC（vs 未來 3 天報酬 · BTC）</h2>
+      <div class="chart-mid"><canvas id="icBar"></canvas></div>
+      <div class="note">散戶/大戶多空比都是<b>負 IC</b>（同向、都是反向操作對象，不正交）；Coinbase Premium <b>正 IC</b>（機構買現貨＝偏多，與散戶因子正交）。吃單量比、OI 太弱。</div>
+    </div>
+    <div class="panel">
+      <h2>因子檢驗明細</h2>
+      <div class="tblwrap"><table id="icTbl"><thead></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- ==================== RESEARCH LOG VIEW ==================== -->
   <section id="view-ideas">
-    <p class="sub">綜合 4 本量化書 + 14 幣回測後，可嘗試的方向（依優先度排序）。我們可以一項一項來。</p>
+    <p class="sub">誠實的研究決策日誌：測過什麼、結論（已採用 / 已否決 / 待試）、依據。realism-first——寧可留可靠的擬真結論，不留漂亮的過擬合幻象。</p>
     <div id="ideaList"></div>
   </section>
 
@@ -441,6 +467,7 @@ document.getElementById("foot").innerHTML =
 // ==================== tabs ====================
 const TABS={live:["tab-live","view-live"], bt:["tab-bt","view-backtest"],
   coins:["tab-coins","view-coins"], params:["tab-params","view-params"],
+  exit:["tab-exit","view-exit"], factors:["tab-factors","view-factors"],
   lev:["tab-lev","view-lev"], wf:["tab-wf","view-wf"], ideas:["tab-ideas","view-ideas"]};
 function show(which){
   for(const [b,s] of Object.values(TABS)){
@@ -456,7 +483,7 @@ Object.keys(TABS).forEach(k=>document.getElementById(TABS[k][0]).onclick=()=>sho
 
 // ==================== research views (multi-coin / params / leverage / ideas) ====================
 if(window.RESEARCH) renderResearch(window.RESEARCH);
-else ["coins","params","lev","wf","ideas"].forEach(k=>document.getElementById(TABS[k][0]).style.display="none");
+else ["coins","params","exit","factors","lev","wf","ideas"].forEach(k=>document.getElementById(TABS[k][0]).style.display="none");
 
 function renderResearch(R){
   const posneg = x => x>=0?"pos":"neg";
@@ -466,7 +493,8 @@ function renderResearch(R){
     ["maxdd_pct","最大回撤%"],["trades","筆數"],["days_per_trade","每筆天數"],["win_pct","勝率%"],
     ["pf","獲利因子"],["worst_mae_pct","最慘逆行%"],["corr_btc","與BTC相關"]];
   let coinVariant="tuned", coinSortK="sharpe", coinSortDir=-1;
-  function coinRows(){ return (MC[coinVariant]||[]).slice().sort((a,b)=>{
+  const WL = R.whitelist || ["BTCUSDT","ADAUSDT","DOGEUSDT"];
+  function coinRows(){ return (MC[coinVariant]||[]).filter(r=>WL.includes(r.symbol)).slice().sort((a,b)=>{
     let x=a[coinSortK],y=b[coinSortK]; if(x==null)x=-1e9; if(y==null)y=-1e9;
     return typeof x==="string"?(x>y?1:-1)*coinSortDir:(x-y)*coinSortDir;}); }
   function renderCoinTbl(){
@@ -487,10 +515,9 @@ function renderResearch(R){
     b.classList.add("on"); renderCoinTbl();});
   renderCoinTbl();
   document.getElementById("coinNote").innerHTML=
-    "🪙 只有 <b>BTC、ADA</b>（調優夏普 1.5+、回撤可控、最慘逆行 −13~−24%）在開槓桿下能存活。"+
-    "多數 alt（TRX/DOT/XRP/LTC/PEPE）最慘逆行 −78~−117%＝開槓桿必爆。結論：走<b>幣種白名單</b>。";
-  const tunedSorted = coinRows.call?null:null;
-  const cs=(MC.tuned||[]).slice().sort((a,b)=>(b.sharpe||-9)-(a.sharpe||-9));
+    "🪙 <b>白名單：BTC / ADA / DOGE</b>（調優夏普高、回撤可控、開槓桿能存活）。"+
+    "已測的其餘 11 檔多為地雷（TRX/DOT/XRP/LTC/PEPE 最慘逆行 −78~−117%＝開槓桿必爆），已從清單移除只保留這 3 檔。";
+  const cs=(MC.tuned||[]).filter(r=>WL.includes(r.symbol)).slice().sort((a,b)=>(b.sharpe||-9)-(a.sharpe||-9));
   new Chart(document.getElementById("coinSharpe"),{type:"bar",
     data:{labels:cs.map(r=>r.symbol.replace("USDT","")),datasets:[{data:cs.map(r=>r.sharpe),
       backgroundColor:cs.map(r=>r.sharpe>=1?"#2dd4bf":r.sharpe>=0.5?"#e0b34a":"#e0574a")}]},
@@ -626,13 +653,50 @@ function renderResearch(R){
     renderWfTbl();
   }
 
-  // ---- ideas ----
-  document.getElementById("ideaList").innerHTML=R.ideas.map(i=>`<div class="idea">
-    <div class="num">${i.rank}</div>
-    <div class="body"><div class="top"><span class="ttl">${i.title}</span>
-      <span class="chip ${i.impact==='高'?'hi':(i.impact==='中'?'mid':'')}">效益 ${i.impact}</span>
-      <span class="chip">工程 ${i.effort}</span><span class="chip">${i.tag}</span></div>
-      <div class="why">${i.why}</div></div></div>`).join("");
+  // ---- exit redesign ----
+  const E=R.exit||[];
+  if(E.length){
+    document.querySelector("#exitTbl thead").innerHTML=
+      "<tr><th>幣</th><th>固定3天 樣本內</th><th>固定3天 <b>OOS</b></th><th>正規化 樣本內</th><th>正規化 <b>OOS</b></th><th>回撤 IS</th><th>判定</th></tr>";
+    document.querySelector("#exitTbl tbody").innerHTML=E.map(e=>{
+      const adopt=(e.verdict||"").includes("採用");
+      return `<tr><td><b>${e.coin}</b></td>
+        <td class="muted">${e.base_sharpe}</td><td>${e.base_oos}</td>
+        <td class="muted">${e.norm_sharpe}</td>
+        <td class="${adopt?'good':'bad'}">${e.norm_oos}</td>
+        <td class="muted">${e.base_maxdd}%→${e.norm_maxdd}%</td>
+        <td class="${adopt?'good':'bad'}">${adopt?'✓ ':'✗ '}${e.verdict}</td></tr>`;}).join("");
+    document.getElementById("exitNote").innerHTML=
+      "✅ BTC/ADA 樣本外<b>提升</b>（1.58→1.73、1.68→1.82）→ 採用正規化出場；❌ DOGE 樣本外<b>崩壞</b>（1.15→0.44）→ 維持固定3天。"+
+      "差異有經濟依據：BTC/ADA 均值回歸乾淨，DOGE 太雜訊、百分位會在中性帶來回抽動把倉洗掉。<b>只信 OOS，不信樣本內</b>——這就是防過擬合。";
+  }
+
+  // ---- factor research ----
+  const F=R.factor_ic||[];
+  if(F.length){
+    new Chart(document.getElementById("icBar"),{type:"bar",
+      data:{labels:F.map(f=>f.factor),datasets:[{data:F.map(f=>f.ic),
+        backgroundColor:F.map(f=>{const a=Math.abs(f.ic||0);
+          return a>0.1?"#e0574a":(a>0.05?"#2dd4bf":(a>0.03?"#e0b34a":"#7f9298"));})}]},
+      options:{indexAxis:"y",maintainAspectRatio:false,plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:c=>` IC ${c.parsed.x>=0?'+':''}${c.parsed.x}`}}},
+        scales:{x:{grid:{color:"#162325"},title:{display:true,text:"IC（vs 未來3天報酬）"}},y:{grid:{display:false}}}}});
+    document.querySelector("#icTbl thead").innerHTML="<tr><th>因子</th><th>IC(full)</th><th>判定</th></tr>";
+    document.querySelector("#icTbl tbody").innerHTML=F.map(f=>{
+      const a=Math.abs(f.ic||0), cls=a>0.1?"bad":(a>0.05?"good":"");
+      return `<tr><td>${f.factor}</td><td class="${cls}">${f.ic>=0?'+':''}${f.ic}</td>
+        <td class="${cls}">${f.verdict}</td></tr>`;}).join("");
+  }
+
+  // ---- research log (decision tracker) ----
+  const RL=R.research_log||[];
+  document.getElementById("ideaList").innerHTML=RL.map((i,n)=>{
+    const st=i.status||"", chip=st.includes("採用")?"hi":(st.includes("否決")?"":"mid");
+    return `<div class="idea">
+    <div class="num">${n+1}</div>
+    <div class="body"><div class="top"><span class="ttl">${i.idea}</span>
+      <span class="chip ${chip}">${st}</span><span class="chip">效益 ${i.impact}</span></div>
+      <div class="why">${i.evidence}</div></div></div>`;}).join("");
 }
 
 // ==================== live paper view (multi-experiment) ====================

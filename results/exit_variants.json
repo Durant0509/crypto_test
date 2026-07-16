@@ -1,0 +1,206 @@
+{
+  "BTCUSDT": {
+    "baseline 3d": {
+      "sharpe": 1.55,
+      "total_pct": 312,
+      "maxdd_pct": -18.2,
+      "trades": 306,
+      "days_per_trade": 5.4,
+      "avg_hold_h": 71.8,
+      "win_pct": 55.2,
+      "pf": 1.84,
+      "worst_mae_pct": -13.0
+    },
+    "norm .40-.60 cap3d": {
+      "sharpe": 1.28,
+      "total_pct": 248,
+      "maxdd_pct": -20.9,
+      "trades": 319,
+      "days_per_trade": 5.1,
+      "avg_hold_h": 60.3,
+      "win_pct": 51.4,
+      "pf": 1.63,
+      "worst_mae_pct": -11.6
+    },
+    "norm .40-.60 cap5d": {
+      "sharpe": 1.57,
+      "total_pct": 308,
+      "maxdd_pct": -21.4,
+      "trades": 245,
+      "days_per_trade": 6.7,
+      "avg_hold_h": 82.8,
+      "win_pct": 44.9,
+      "pf": 1.91,
+      "worst_mae_pct": -11.6
+    },
+    "norm .40-.60 cap7d": {
+      "sharpe": 1.44,
+      "total_pct": 284,
+      "maxdd_pct": -24.6,
+      "trades": 206,
+      "days_per_trade": 8.0,
+      "avg_hold_h": 99.7,
+      "win_pct": 42.7,
+      "pf": 1.92,
+      "worst_mae_pct": -11.6
+    },
+    "norm .45-.55 cap5d": {
+      "sharpe": 1.63,
+      "total_pct": 318,
+      "maxdd_pct": -21.9,
+      "trades": 240,
+      "days_per_trade": 6.8,
+      "avg_hold_h": 89.8,
+      "win_pct": 48.3,
+      "pf": 1.91,
+      "worst_mae_pct": -11.6
+    },
+    "norm .30-.70 cap5d": {
+      "sharpe": 1.45,
+      "total_pct": 277,
+      "maxdd_pct": -22.4,
+      "trades": 254,
+      "days_per_trade": 6.5,
+      "avg_hold_h": 73.4,
+      "win_pct": 44.5,
+      "pf": 1.82,
+      "worst_mae_pct": -9.3
+    }
+  },
+  "ADAUSDT": {
+    "baseline 3d": {
+      "sharpe": 1.61,
+      "total_pct": 338,
+      "maxdd_pct": -21.3,
+      "trades": 306,
+      "days_per_trade": 5.4,
+      "avg_hold_h": 71.9,
+      "win_pct": 53.6,
+      "pf": 1.82,
+      "worst_mae_pct": -24.4
+    },
+    "norm .40-.60 cap3d": {
+      "sharpe": 1.43,
+      "total_pct": 281,
+      "maxdd_pct": -19.9,
+      "trades": 347,
+      "days_per_trade": 4.7,
+      "avg_hold_h": 53.7,
+      "win_pct": 47.8,
+      "pf": 1.7,
+      "worst_mae_pct": -24.4
+    },
+    "norm .40-.60 cap5d": {
+      "sharpe": 1.58,
+      "total_pct": 314,
+      "maxdd_pct": -23.2,
+      "trades": 284,
+      "days_per_trade": 5.8,
+      "avg_hold_h": 68.0,
+      "win_pct": 47.5,
+      "pf": 1.85,
+      "worst_mae_pct": -24.4
+    },
+    "norm .40-.60 cap7d": {
+      "sharpe": 1.63,
+      "total_pct": 318,
+      "maxdd_pct": -17.9,
+      "trades": 263,
+      "days_per_trade": 6.2,
+      "avg_hold_h": 74.9,
+      "win_pct": 46.4,
+      "pf": 1.99,
+      "worst_mae_pct": -24.4
+    },
+    "norm .45-.55 cap5d": {
+      "sharpe": 1.52,
+      "total_pct": 311,
+      "maxdd_pct": -19.8,
+      "trades": 263,
+      "days_per_trade": 6.2,
+      "avg_hold_h": 77.7,
+      "win_pct": 49.0,
+      "pf": 1.84,
+      "worst_mae_pct": -24.4
+    },
+    "norm .30-.70 cap5d": {
+      "sharpe": 1.4,
+      "total_pct": 270,
+      "maxdd_pct": -26.2,
+      "trades": 315,
+      "days_per_trade": 5.2,
+      "avg_hold_h": 55.5,
+      "win_pct": 44.8,
+      "pf": 1.69,
+      "worst_mae_pct": -24.4
+    }
+  },
+  "DOGEUSDT": {
+    "baseline 3d": {
+      "sharpe": 1.07,
+      "total_pct": 238,
+      "maxdd_pct": -42.6,
+      "trades": 306,
+      "days_per_trade": 5.4,
+      "avg_hold_h": 72.0,
+      "win_pct": 49.7,
+      "pf": 1.49,
+      "worst_mae_pct": -34.1
+    },
+    "norm .40-.60 cap3d": {
+      "sharpe": 0.95,
+      "total_pct": 192,
+      "maxdd_pct": -36.4,
+      "trades": 347,
+      "days_per_trade": 4.7,
+      "avg_hold_h": 52.0,
+      "win_pct": 43.8,
+      "pf": 1.42,
+      "worst_mae_pct": -34.1
+    },
+    "norm .40-.60 cap5d": {
+      "sharpe": 0.72,
+      "total_pct": 196,
+      "maxdd_pct": -35.4,
+      "trades": 286,
+      "days_per_trade": 5.7,
+      "avg_hold_h": 65.2,
+      "win_pct": 43.0,
+      "pf": 1.46,
+      "worst_mae_pct": -30.7
+    },
+    "norm .40-.60 cap7d": {
+      "sharpe": 0.95,
+      "total_pct": 268,
+      "maxdd_pct": -35.3,
+      "trades": 266,
+      "days_per_trade": 6.2,
+      "avg_hold_h": 71.7,
+      "win_pct": 41.0,
+      "pf": 1.68,
+      "worst_mae_pct": -32.7
+    },
+    "norm .45-.55 cap5d": {
+      "sharpe": 0.65,
+      "total_pct": 177,
+      "maxdd_pct": -35.7,
+      "trades": 273,
+      "days_per_trade": 6.0,
+      "avg_hold_h": 72.2,
+      "win_pct": 43.2,
+      "pf": 1.42,
+      "worst_mae_pct": -38.0
+    },
+    "norm .30-.70 cap5d": {
+      "sharpe": 0.71,
+      "total_pct": 188,
+      "maxdd_pct": -36.6,
+      "trades": 315,
+      "days_per_trade": 5.2,
+      "avg_hold_h": 55.0,
+      "win_pct": 42.5,
+      "pf": 1.42,
+      "worst_mae_pct": -30.7
+    }
+  }
+}

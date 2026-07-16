@@ -41,6 +41,13 @@ class BacktestConfig:
     end: str | None = None
     params: Params = field(default_factory=Params)
     costs: Costs = field(default_factory=Costs)
+    # exit logic. "time" = fixed hold_hours (original). "normalize" = exit when the
+    # L/S percentile returns to the neutral band (reversion done), with hold_hours
+    # as a MAX cap and min_hold_hours before normalize-exit is allowed.
+    exit_mode: str = "time"
+    neutral_lo: float = 0.40
+    neutral_hi: float = 0.60
+    min_hold_hours: int = 24
 
 
 @dataclass
@@ -51,8 +58,12 @@ class BacktestResult:
     config: BacktestConfig
 
 
-def run(df: pd.DataFrame, cfg: BacktestConfig = BacktestConfig()) -> BacktestResult:
-    sig = compute(df, cfg.params)
+def run(df: pd.DataFrame, cfg: BacktestConfig = BacktestConfig(),
+        signals: pd.DataFrame | None = None) -> BacktestResult:
+    # `signals` lets research pass a pre-computed frame (same open/high/low/close +
+    # target/size columns) to test alternative signals without touching the shared
+    # signal code. Default None reproduces the standard single-factor behaviour.
+    sig = signals if signals is not None else compute(df, cfg.params)
 
     start = pd.Timestamp(cfg.start, tz="UTC")
     end = pd.Timestamp(cfg.end, tz="UTC") if cfg.end else sig.index.max()
@@ -65,8 +76,11 @@ def run(df: pd.DataFrame, cfg: BacktestConfig = BacktestConfig()) -> BacktestRes
     closes = win["close"].to_numpy(dtype=float)
     targets = win["target"].to_numpy(dtype=int)
     sizes = win["size"].to_numpy(dtype=float)
+    pcts = win["pct"].to_numpy(dtype=float)        # L/S percentile (for normalize exit)
     idx = win.index
     n = len(win)
+    normalize = cfg.exit_mode == "normalize"
+    nlo, nhi, min_hold = cfg.neutral_lo, cfg.neutral_hi, cfg.min_hold_hours
 
     base = cfg.base_notional
     cps = cfg.costs.per_side
@@ -101,10 +115,15 @@ def run(df: pd.DataFrame, cfg: BacktestConfig = BacktestConfig()) -> BacktestRes
         return pnl
 
     for i in range(1, n):
-        # ----- exit: 3-day time stop, executed at this bar's open ------------
-        if pos_side != 0 and (i - entry_i) >= hold:
-            realized += _record_trade(i, opens[i], notional * cps * 2.0)  # 2 legs
-            pos_side, entry_i, entry_px, notional, mae, mfe = 0, -1, 0.0, 0.0, 0.0, 0.0
+        # ----- exit: executed at this bar's open, on the prior bar's signal ---
+        if pos_side != 0:
+            held = i - entry_i
+            time_exit = held >= hold                       # hold_hours = time exit / max cap
+            norm_exit = (normalize and held >= min_hold
+                         and np.isfinite(pcts[i - 1]) and nlo <= pcts[i - 1] <= nhi)
+            if time_exit or norm_exit:
+                realized += _record_trade(i, opens[i], notional * cps * 2.0)  # 2 legs
+                pos_side, entry_i, entry_px, notional, mae, mfe = 0, -1, 0.0, 0.0, 0.0, 0.0
 
         # ----- entry: act on the previous bar's signal, at this bar's open ---
         if pos_side == 0 and targets[i - 1] != FLAT:

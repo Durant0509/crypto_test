@@ -31,6 +31,82 @@ from src.strategy.signal import Params                       # noqa: E402
 DATA = ROOT / "data" / "hourly.parquet"
 RESULTS = ROOT / "results"
 OUT = ROOT / "docs" / "research.js"
+WHITELIST = ["BTCUSDT", "ADAUSDT", "DOGEUSDT"]
+
+
+def exit_summary():
+    """Exit redesign: baseline vs normalize (.40-.60, 5d cap), in-sample + OOS."""
+    from research.exit_variants import evalv, walk_forward
+    from research.lib import build_hourly
+    rows = []
+    for sym in WHITELIST:
+        df = build_hourly(sym)
+        base_is = evalv(df, "time", 3, 0.40, 0.60)
+        norm_is = evalv(df, "normalize", 5, 0.40, 0.60)
+        base_oos = walk_forward(df, "time", 3, 0.40, 0.60)["oos_sharpe"]
+        norm_oos = walk_forward(df, "normalize", 5, 0.40, 0.60)["oos_sharpe"]
+        adopt = norm_oos is not None and base_oos is not None and norm_oos > base_oos
+        rows.append({
+            "coin": sym.replace("USDT", ""),
+            "base_sharpe": base_is["sharpe"], "base_oos": base_oos, "base_maxdd": base_is["maxdd_pct"],
+            "norm_sharpe": norm_is["sharpe"], "norm_oos": norm_oos, "norm_maxdd": norm_is["maxdd_pct"],
+            "verdict": "採用正規化出場" if adopt else "維持固定3天",
+        })
+    return rows
+
+
+def research_log():
+    """Honest record of what we tested and the verdict (realism-first)."""
+    return [
+        {"idea": "縮短 lookback 90→45 天", "status": "已採用", "impact": "高",
+         "evidence": "樣本外 BTC 1.58→(45d基準)、ADA/DOGE 同樣 45d 樣本外皆優於 90d；訓練窗自動反覆選中 45d。非過擬合。"},
+        {"idea": "正規化出場（回中性40-60%平倉，5天上限）", "status": "部分採用", "impact": "中",
+         "evidence": "walk-forward：BTC 1.58→1.73、ADA 1.68→1.82（採用）；DOGE 1.15→0.44（否決，維持3天）。"},
+        {"idea": "多因子共振（散戶 + 大戶多空比）", "status": "已否決", "impact": "—",
+         "evidence": "IC/IR 顯示大戶與散戶同向（非正交）；共振閘門把 Sharpe 腰斬（BTC 1.55→0.73）。樣本內就失敗。"},
+        {"idea": "Coinbase Premium 方向濾網", "status": "已否決", "impact": "—",
+         "evidence": "溢價正交、正 IC，但當濾網無法提升樣本外 Sharpe（BTC 1.58→1.56、ADA 打平）。唯 DOGE 回撤 -42.6%→-28.5% 可留意。"},
+        {"idea": "資金費率 funding（極端/累積）", "status": "待試", "impact": "高",
+         "evidence": "有 data.binance.vision 完整歷史可離線回測；美元成本口徑，與散戶人數口徑半正交。下一個候選。"},
+        {"idea": "OKX 頂級交易者多空比", "status": "待試（需養資料）", "impact": "高",
+         "evidence": "跨交易所聰明錢，最正交；但只有即時、無歷史 → 需架採集器累積數月才能回測。"},
+        {"idea": "強平潮 forceOrders", "status": "待試（需養資料）", "impact": "最高",
+         "evidence": "理論 alpha 最高（投降式流動性=反轉燃料）；但幣安歷史 dump 已下架，只剩即時 WS。"},
+    ]
+
+
+def factor_ic_table():
+    """Merge factor IC (retail/top-trader/taker/OI) + Coinbase premium, BTC as headline."""
+    fic = load("factor_ic.json") or {}
+    cbp = load("coinbase_premium_ic.json") or []
+    rows = []
+    btc = (fic.get("BTCUSDT") or {}).get("factors", [])
+    label_zh = {"retail L/S (accounts)": "散戶多空比（在用）",
+                "top-trader L/S (accounts)": "大戶多空比·帳戶",
+                "top-trader L/S (positions)": "大戶多空比·持倉",
+                "taker buy/sell vol ratio": "吃單買賣量比",
+                "open interest (Δ%)": "未平倉量 Δ%"}
+    for r in btc:
+        ic = r.get("ic_full")
+        rows.append({"factor": label_zh.get(r["label"], r["label"]), "ic": ic,
+                     "verdict": _icv(ic)})
+    cb_btc = next((c for c in cbp if c["symbol"] == "BTCUSDT"), None)
+    if cb_btc:
+        rows.append({"factor": "Coinbase Premium（新）", "ic": cb_btc["ic_full"],
+                     "verdict": _icv(cb_btc["ic_full"])})
+    return rows
+
+
+def _icv(ic):
+    if ic is None:
+        return "—"
+    a = abs(ic)
+    return "紅旗>0.1" if a > 0.1 else ("強" if a > 0.05 else ("有效" if a > 0.03 else "弱/無"))
+
+
+def load(name):
+    p = RESULTS / name
+    return json.loads(p.read_text()) if p.exists() else None
 
 
 def clean(obj):
@@ -90,10 +166,6 @@ IDEAS = [
 
 
 def main():
-    def load(name):
-        p = RESULTS / name
-        return json.loads(p.read_text()) if p.exists() else None
-
     multi = load("multi_coin.json") or {}
     sweep = load("param_sweep.json") or {}
     lev = load("leverage_safety.json") or {}
@@ -115,6 +187,10 @@ def main():
             "tuned": tuned_curve,     # 45d lookback (best in-sample)
         },
         "ideas": IDEAS,
+        "whitelist": WHITELIST,
+        "exit": exit_summary(),
+        "research_log": research_log(),
+        "factor_ic": factor_ic_table(),
     })
 
     OUT.parent.mkdir(exist_ok=True)

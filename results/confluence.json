@@ -1,0 +1,101 @@
+{
+  "BTCUSDT": {
+    "top_coverage": 0.817,
+    "baseline": {
+      "sharpe": 1.55,
+      "total_pct": 312,
+      "maxdd_pct": -18.2,
+      "trades": 306,
+      "days_per_trade": 5.4,
+      "win_pct": 55.2,
+      "pf": 1.84,
+      "worst_mae_pct": -13.0
+    },
+    "agree": {
+      "sharpe": 0.73,
+      "total_pct": 77,
+      "maxdd_pct": -34.7,
+      "trades": 93,
+      "days_per_trade": 17.6,
+      "win_pct": 55.9,
+      "pf": 1.65,
+      "worst_mae_pct": -18.3
+    },
+    "blend": {
+      "sharpe": 0.61,
+      "total_pct": 72,
+      "maxdd_pct": -33.0,
+      "trades": 115,
+      "days_per_trade": 14.3,
+      "win_pct": 53.0,
+      "pf": 1.47,
+      "worst_mae_pct": -16.1
+    }
+  },
+  "ADAUSDT": {
+    "top_coverage": 0.782,
+    "baseline": {
+      "sharpe": 1.61,
+      "total_pct": 338,
+      "maxdd_pct": -21.3,
+      "trades": 306,
+      "days_per_trade": 5.4,
+      "win_pct": 53.6,
+      "pf": 1.82,
+      "worst_mae_pct": -24.4
+    },
+    "agree": {
+      "sharpe": 0.75,
+      "total_pct": 88,
+      "maxdd_pct": -15.9,
+      "trades": 80,
+      "days_per_trade": 20.5,
+      "win_pct": 60.0,
+      "pf": 2.03,
+      "worst_mae_pct": -24.4
+    },
+    "blend": {
+      "sharpe": 0.6,
+      "total_pct": 79,
+      "maxdd_pct": -20.1,
+      "trades": 106,
+      "days_per_trade": 15.5,
+      "win_pct": 59.4,
+      "pf": 1.54,
+      "worst_mae_pct": -24.2
+    }
+  },
+  "DOGEUSDT": {
+    "top_coverage": 0.782,
+    "baseline": {
+      "sharpe": 1.07,
+      "total_pct": 238,
+      "maxdd_pct": -42.6,
+      "trades": 306,
+      "days_per_trade": 5.4,
+      "win_pct": 49.7,
+      "pf": 1.49,
+      "worst_mae_pct": -34.1
+    },
+    "agree": {
+      "sharpe": 0.31,
+      "total_pct": 30,
+      "maxdd_pct": -23.5,
+      "trades": 82,
+      "days_per_trade": 20.0,
+      "win_pct": 47.6,
+      "pf": 1.24,
+      "worst_mae_pct": -29.3
+    },
+    "blend": {
+      "sharpe": 0.51,
+      "total_pct": 60,
+      "maxdd_pct": -45.8,
+      "trades": 119,
+      "days_per_trade": 13.8,
+      "win_pct": 52.1,
+      "pf": 1.35,
+      "worst_mae_pct": -29.3
+    }
+  }
+}

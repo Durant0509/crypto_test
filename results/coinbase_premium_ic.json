@@ -1,0 +1,32 @@
+[
+  {
+    "symbol": "BTCUSDT",
+    "coverage": 39336,
+    "premium_mean_bp": 2.7,
+    "premium_std_bp": 8.4,
+    "ic_full": 0.0635,
+    "ic_mean_30d": -0.0002,
+    "ir": -0.0,
+    "pos_frac": 0.57
+  },
+  {
+    "symbol": "ADAUSDT",
+    "coverage": 39336,
+    "premium_mean_bp": 4.1,
+    "premium_std_bp": 17.7,
+    "ic_full": 0.0465,
+    "ic_mean_30d": 0.0678,
+    "ir": 0.33,
+    "pos_frac": 0.65
+  },
+  {
+    "symbol": "DOGEUSDT",
+    "coverage": 39336,
+    "premium_mean_bp": 3.0,
+    "premium_std_bp": 10.4,
+    "ic_full": 0.0242,
+    "ic_mean_30d": 0.0302,
+    "ir": 0.14,
+    "pos_frac": 0.63
+  }
+]

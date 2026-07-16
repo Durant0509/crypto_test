@@ -1,0 +1,128 @@
+{
+  "BTCUSDT": {
+    "in_sample": {
+      "baseline": {
+        "sharpe": 1.55,
+        "total_pct": 312,
+        "maxdd_pct": -18.2,
+        "trades": 306,
+        "days_per_trade": 5.4,
+        "win_pct": 55.2
+      },
+      "gate .50": {
+        "sharpe": 1.49,
+        "total_pct": 295,
+        "maxdd_pct": -15.8,
+        "trades": 273,
+        "days_per_trade": 6.0,
+        "win_pct": 57.1
+      },
+      "gate len .60/.40": {
+        "sharpe": 1.49,
+        "total_pct": 298,
+        "maxdd_pct": -17.4,
+        "trades": 282,
+        "days_per_trade": 5.8,
+        "win_pct": 57.1
+      },
+      "gate str .40/.60": {
+        "sharpe": 1.41,
+        "total_pct": 277,
+        "maxdd_pct": -17.2,
+        "trades": 255,
+        "days_per_trade": 6.4,
+        "win_pct": 56.5
+      }
+    },
+    "oos_sharpe": {
+      "baseline": 1.58,
+      "gate .50": 1.51,
+      "gate len .60/.40": 1.56,
+      "gate str .40/.60": 1.48
+    }
+  },
+  "ADAUSDT": {
+    "in_sample": {
+      "baseline": {
+        "sharpe": 1.61,
+        "total_pct": 338,
+        "maxdd_pct": -21.3,
+        "trades": 306,
+        "days_per_trade": 5.4,
+        "win_pct": 53.6
+      },
+      "gate .50": {
+        "sharpe": 1.5,
+        "total_pct": 282,
+        "maxdd_pct": -22.5,
+        "trades": 252,
+        "days_per_trade": 6.5,
+        "win_pct": 55.2
+      },
+      "gate len .60/.40": {
+        "sharpe": 1.65,
+        "total_pct": 319,
+        "maxdd_pct": -22.8,
+        "trades": 260,
+        "days_per_trade": 6.3,
+        "win_pct": 55.4
+      },
+      "gate str .40/.60": {
+        "sharpe": 1.62,
+        "total_pct": 291,
+        "maxdd_pct": -17.9,
+        "trades": 239,
+        "days_per_trade": 6.9,
+        "win_pct": 55.2
+      }
+    },
+    "oos_sharpe": {
+      "baseline": 1.68,
+      "gate .50": 1.46,
+      "gate len .60/.40": 1.67,
+      "gate str .40/.60": 1.39
+    }
+  },
+  "DOGEUSDT": {
+    "in_sample": {
+      "baseline": {
+        "sharpe": 1.07,
+        "total_pct": 238,
+        "maxdd_pct": -42.6,
+        "trades": 306,
+        "days_per_trade": 5.4,
+        "win_pct": 49.7
+      },
+      "gate .50": {
+        "sharpe": 1.05,
+        "total_pct": 215,
+        "maxdd_pct": -36.5,
+        "trades": 250,
+        "days_per_trade": 6.6,
+        "win_pct": 51.6
+      },
+      "gate len .60/.40": {
+        "sharpe": 1.02,
+        "total_pct": 217,
+        "maxdd_pct": -33.8,
+        "trades": 268,
+        "days_per_trade": 6.1,
+        "win_pct": 50.7
+      },
+      "gate str .40/.60": {
+        "sharpe": 1.08,
+        "total_pct": 208,
+        "maxdd_pct": -28.5,
+        "trades": 229,
+        "days_per_trade": 7.2,
+        "win_pct": 52.0
+      }
+    },
+    "oos_sharpe": {
+      "baseline": 1.15,
+      "gate .50": 0.91,
+      "gate len .60/.40": 0.98,
+      "gate str .40/.60": 1.1
+    }
+  }
+}

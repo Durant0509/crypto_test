@@ -80,7 +80,51 @@ INDEPENDENTLY (no portfolio mixing).
   a stable parameter is more robust. Don't over-optimize.
 - Whitelist: BTC + ADA strong, DOGE ok, ETH marginal. Candidate: move live config to 45d.
 
-## 5. Ideas / extensions (ranked — see dashboard 未來方向 tab)
+## 5. Exit redesign — normalize exit (ADOPT for BTC/ADA, not DOGE) (2026-07)
+
+The fixed 3-day time exit is the weakest link. Tested "exit on normalization": close
+when the L/S percentile returns to a neutral band, with a max-hold cap
+(`research/exit_variants.py`; engine gained backward-compatible `exit_mode`).
+
+Best config **normalize, neutral .40-.60, 5-day cap** — walk-forward OOS Sharpe:
+
+| Coin | baseline 3d (OOS) | normalize .40-.60/5d (OOS) |
+|---|---|---|
+| BTC | 1.58 | **1.73** |
+| ADA | 1.68 | **1.82** |
+| DOGE | 1.15 | **0.44** (much worse) |
+
+**Findings**
+- Normalize exit **genuinely helps BTC & ADA out-of-sample** (+0.1–0.15 Sharpe) — the
+  reversion completes cleanly, so exiting when the percentile re-enters neutral frees
+  capital sooner. Win rate drops but Sharpe rises (fewer stale holds).
+- **DOGE is the opposite**: too retail/noisy, its percentile whipsaws through neutral
+  before price reverts → normalize exits too early. **Keep fixed 3d for DOGE.**
+- Verdict: **BTC/ADA → normalize exit (.40-.60, 5d cap); DOGE → fixed 3d.** Per-coin
+  differentiation is OOS-validated + economically grounded, not curve-fit. Note: to run
+  this live, `paper.py` needs the same normalize-exit logic (not yet wired).
+
+## 6. Multi-factor confluence — TESTED, REJECTED (2026-07)
+
+Idea: use the other factors in the metrics dumps (top-trader L/S accounts+positions,
+taker vol ratio, OI) to confirm the retail signal. Followed STRATEGY_SOP.md.
+
+- **IC/IR first** (`research/factors.py`, IC vs forward 72h return): retail L/S IC
+  −0.08 (BTC, fade works). But **top-trader L/S is ALSO negative** (−0.089 acct /
+  −0.072 pos) — top traders are *another contrarian crowd*, not smart money leading
+  price. Taker-vol IC ≈ 0 (useless); OI Δ% −0.035 (weak). **This refutes the
+  "divergence" hypothesis** — retail & top-trader move together.
+- **Confluence backtest** (`research/confluence.py`, revised to "agreement"):
+  gating on retail AND top-trader both extreme roughly HALVES Sharpe —
+  BTC 1.55→0.73, ADA 1.61→0.75, DOGE 1.07→0.31 — cutting trades to ~1/3 (17–20d
+  apart). Win rate ticks up (~+3-5pt) but nowhere near enough to offset. Blend
+  (average percentile) also worse.
+- **Verdict: keep the single retail factor.** No walk-forward needed — it failed
+  the in-sample gate. Valuable negative result: don't re-explore this with these
+  factors. (Untried, would need external data: funding-rate overlay, on-chain
+  SOPR/NUPL.)
+
+## 7. Ideas / extensions (ranked — see dashboard 未來方向 tab)
 
 1. Cross-sectional market-neutral basket (diversify single-coin blow-ups).
 2. Coin whitelist filter (BTC/ADA/small DOGE; skip BNB + ruin coins).
