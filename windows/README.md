@@ -49,16 +49,19 @@ powershell -ExecutionPolicy Bypass -File windows\setup.ps1
 
 ## 跑哪些實驗？
 
-每小時一次的 tick 會**同時**跑 4 個**獨立**的紙上模擬（各自虛擬 1000 U）：
+每小時一次的 tick 會**同時**跑 6 個**獨立**的紙上模擬（各自虛擬 1000 U）：
 
-| 實驗 | 幣種 | 參數 | 建議槓桿上限 | 帳本檔 |
-|---|---|---|---|---|
-| 基準（原本在跑） | BTC | lookback **90天** | ≤3× | `paper_state/ledger.json` |
-| 調優 | ADA | lookback **45天** | ≤2× | `paper_state/exp_ada-tuned.json` |
-| 調優 | BTC | lookback **45天** | ≤3× | `paper_state/exp_btc-tuned.json` |
-| 調優 | DOGE | lookback **45天** | ≤2× | `paper_state/exp_doge-tuned.json` |
+| 實驗 | 幣種 | 參數 | 出場 | 槓桿上限 | 帳本檔 |
+|---|---|---|---|---|---|
+| 基準（原本在跑） | BTC | lookback **90天** | 固定3天 | ≤3× | `ledger.json` |
+| 調優 | ADA | **45天** | 固定3天 | ≤2× | `exp_ada-tuned.json` |
+| 調優 | BTC | **45天** | 固定3天 | ≤3× | `exp_btc-tuned.json` |
+| 調優 | DOGE | **45天** | 固定3天 | ≤2× | `exp_doge-tuned.json` |
+| 調優·A/B | ADA | **45天** | **正規化出場** | ≤2× | `exp_ada-tuned-norm.json` |
+| 調優·A/B | BTC | **45天** | **正規化出場** | ≤3× | `exp_btc-tuned-norm.json` |
 
-- 調優的 3 檔是「前推驗證」樣本外夏普最高的前三名（ADA 1.68 / BTC 1.58 / DOGE 1.15），用已驗證的 45 天 lookback + 各自建議的安全槓桿。
+- 45 天 lookback 是「前推驗證」樣本外最佳（ADA/BTC/DOGE 皆優於 90 天）。
+- 最後兩檔是**出場改造 A/B**：跟固定3天版並排跑「正規化出場」（百分位回中性 40–60% 就平倉），驗證樣本外的改善（BTC 1.58→1.73、ADA 1.68→1.82）在實盤是否重現。DOGE 不做正規化（樣本外會變差）。
 - 網頁「實時模擬」分頁會把 4 檔並排成卡片，每張卡標明**該實驗的參數類別**（幣種 / lookback / 門檻 / 持有 / 槓桿上限）。
 - 首次啟動時 ADA/DOGE 會各自從 Binance 公開資料下載約 110 天歷史暖機（約 2–4 分鐘），之後每小時自動更新。
 

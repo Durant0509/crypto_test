@@ -23,7 +23,7 @@ $origOk = ($LASTEXITCODE -eq 0)
 $expOk = ($LASTEXITCODE -eq 0)
 
 if ($origOk -or $expOk) {
-    git add docs/live.js docs/live_experiments.js paper_state/ledger.json paper_state/exp_ada-tuned.json paper_state/exp_btc-tuned.json paper_state/exp_doge-tuned.json 2>&1 | Add-Content $log
+    git add docs/live.js docs/live_experiments.js paper_state/ 2>&1 | Add-Content $log
     git diff --cached --quiet
     if ($LASTEXITCODE -ne 0) {
         git commit -m "paper tick $ts" 2>&1 | Add-Content $log

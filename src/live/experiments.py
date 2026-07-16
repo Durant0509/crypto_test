@@ -30,38 +30,50 @@ STORE_DIR = ROOT / "data"
 OUT_JS = ROOT / "docs" / "live_experiments.js"
 
 START_EQUITY = 1000.0
-# Tuned + validated config (45d lookback held up out-of-sample for BTC/ADA/DOGE).
-TUNED = dict(lookback_days=45, upper=0.90, lower=0.10, hold_days=3,
+# Tuned + validated 45d lookback. Two exit modes run as an A/B:
+#   time      = fixed 3-day exit (original)
+#   normalize = exit when L/S pct back in 40-60% neutral band, 5-day cap
+#               (walk-forward-validated better for BTC/ADA; NOT for DOGE)
+TUNED = dict(lookback_days=45, upper=0.90, lower=0.10,
              vol_target=0.025, smin=0.25, smax=3.0)
+NEUTRAL_LO, NEUTRAL_HI, MIN_HOLD_H = 0.40, 0.60, 24
+EXIT_LABEL = {"time": "固定3天", "normalize": "正規化出場"}
 
 
-def _params(cfg=TUNED) -> Params:
+def _params(exit_mode: str) -> Params:
+    hold_days = 3 if exit_mode == "time" else 5      # normalize uses 5d as the max cap
     return Params(
-        lookback_hours=cfg["lookback_days"] * 24,
-        upper_pct=cfg["upper"], lower_pct=cfg["lower"],
-        hold_hours=cfg["hold_days"] * 24,
+        lookback_hours=TUNED["lookback_days"] * 24,
+        upper_pct=TUNED["upper"], lower_pct=TUNED["lower"],
+        hold_hours=hold_days * 24,
         vol_window_hours=72,
-        target_daily_vol=cfg["vol_target"], size_min=cfg["smin"], size_max=cfg["smax"],
+        target_daily_vol=TUNED["vol_target"], size_min=TUNED["smin"], size_max=TUNED["smax"],
     )
 
 
-# name, coin, symbol, out-of-sample Sharpe, recommended max leverage
+# name, coin, symbol, out-of-sample Sharpe, recommended max leverage, exit mode.
+# A/B: the same coin runs BOTH fixed-3d and normalize-exit side by side (BTC/ADA).
+# DOGE only fixed-3d (normalize was rejected for it out-of-sample).
 EXPERIMENTS = [
-    {"name": "ada-tuned", "coin": "ADA", "symbol": "ADAUSDT", "oos_sharpe": 1.68, "leverage": 2},
-    {"name": "btc-tuned", "coin": "BTC", "symbol": "BTCUSDT", "oos_sharpe": 1.58, "leverage": 3},
-    {"name": "doge-tuned", "coin": "DOGE", "symbol": "DOGEUSDT", "oos_sharpe": 1.15, "leverage": 2},
+    {"name": "ada-tuned",       "coin": "ADA",  "symbol": "ADAUSDT",  "oos_sharpe": 1.68, "leverage": 2, "exit": "time"},
+    {"name": "btc-tuned",       "coin": "BTC",  "symbol": "BTCUSDT",  "oos_sharpe": 1.58, "leverage": 3, "exit": "time"},
+    {"name": "doge-tuned",      "coin": "DOGE", "symbol": "DOGEUSDT", "oos_sharpe": 1.15, "leverage": 2, "exit": "time"},
+    {"name": "ada-tuned-norm",  "coin": "ADA",  "symbol": "ADAUSDT",  "oos_sharpe": 1.82, "leverage": 2, "exit": "normalize"},
+    {"name": "btc-tuned-norm",  "coin": "BTC",  "symbol": "BTCUSDT",  "oos_sharpe": 1.73, "leverage": 3, "exit": "normalize"},
 ]
 
 
 def _meta(exp: dict) -> dict:
     """The parameter-category descriptor shown on the dashboard card."""
+    el = EXIT_LABEL[exp["exit"]]
     return {
         "name": exp["name"], "coin": exp["coin"], "symbol": exp["symbol"],
         "variant": "調優 tuned",
-        "category": f"{exp['coin']} · 調優 45天 · ≤{exp['leverage']}x",
+        "exit_mode": exp["exit"], "exit_label": el,
+        "category": f"{exp['coin']} · 45天 · {el} · ≤{exp['leverage']}x",
         "lookback_days": TUNED["lookback_days"],
         "upper_pct": TUNED["upper"], "lower_pct": TUNED["lower"],
-        "hold_days": TUNED["hold_days"],
+        "hold_days": 3 if exp["exit"] == "time" else 5,
         "leverage": exp["leverage"],
         "max_notional": START_EQUITY * exp["leverage"],
         "start_equity": START_EQUITY,
@@ -71,17 +83,18 @@ def _meta(exp: dict) -> dict:
 
 def tick_all() -> list[dict]:
     payloads = []
-    params = _params()
     for exp in EXPERIMENTS:
         ledger_path = STATE / f"exp_{exp['name']}.json"
         store_path = STORE_DIR / f"live_{exp['symbol']}.parquet"
         max_notional = START_EQUITY * exp["leverage"]
         try:
             _led, payload = tick(
-                params=params, symbol=exp["symbol"],
+                params=_params(exp["exit"]), symbol=exp["symbol"],
                 start_equity=START_EQUITY, max_notional=max_notional,
                 ledger_path=ledger_path, store_path=store_path,
                 write_js=False, return_payload=True,
+                exit_mode=exp["exit"], neutral_lo=NEUTRAL_LO, neutral_hi=NEUTRAL_HI,
+                min_hold_hours=MIN_HOLD_H,
             )
             payload["meta"] = _meta(exp)
             payloads.append(payload)

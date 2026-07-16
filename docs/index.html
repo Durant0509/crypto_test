@@ -705,8 +705,8 @@ const tmap = {FLAT:"觀望 FLAT",LONG:"做多 LONG",SHORT:"做空 SHORT"};
 // Build the experiment list: original BTC baseline (window.LIVE) + tuned experiments.
 const EXPS = [];
 if(window.LIVE) EXPS.push(Object.assign({}, window.LIVE, {_baseline:true, meta:{
-  coin:"BTC", variant:"基準 baseline", category:"BTC · 現行 90天 · ≤3x（原本在跑）",
-  lookback_days:90, upper_pct:0.9, lower_pct:0.1, hold_days:3, leverage:3, oos_sharpe:null}}));
+  coin:"BTC", variant:"基準 baseline", category:"BTC · 現行 90天 · 固定3天 · ≤3x（原本在跑）",
+  lookback_days:90, upper_pct:0.9, lower_pct:0.1, hold_days:3, leverage:3, exit_label:"固定3天", oos_sharpe:null}}));
 if(window.EXPERIMENTS) window.EXPERIMENTS.forEach(e=>EXPS.push(e));
 let liveSel = 0;
 
@@ -748,7 +748,8 @@ function renderLiveDetail(){
     <div class="pi"><span>類別</span> <b>${m.variant}</b></div>
     <div class="pi"><span>Lookback</span> <b>${m.lookback_days} 天</b></div>
     <div class="pi"><span>門檻</span> <b>${m.upper_pct*100}/${m.lower_pct*100}</b></div>
-    <div class="pi"><span>持有</span> <b>${m.hold_days} 天</b></div>
+    <div class="pi"><span>持有/上限</span> <b>${m.hold_days} 天</b></div>
+    <div class="pi"><span>出場</span> <b>${m.exit_label||("固定"+m.hold_days+"天")}</b></div>
     <div class="pi"><span>槓桿上限</span> <b>≤${m.leverage}×</b></div>
     ${m.oos_sharpe?`<div class="pi"><span>樣本外夏普</span> <b class="tealtx">${m.oos_sharpe}</b></div>`:''}</div>`;
   if(V.error){

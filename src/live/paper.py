@@ -103,12 +103,18 @@ def tick(params: Params = Params(), symbol: str = SYMBOL,
          costs: Costs = Costs(),
          ledger_path: Path = LEDGER, store_path: Path = STORE,
          write_js: bool = True, live_js_path: Path = LIVE_JS, live_var: str = "LIVE",
-         return_payload: bool = False):
+         return_payload: bool = False,
+         exit_mode: str = "time", neutral_lo: float = 0.40, neutral_hi: float = 0.60,
+         min_hold_hours: int = 24):
     """Run one forward paper-trading tick.
 
     Defaults reproduce the ORIGINAL single-BTC bot exactly (ledger.json + live.js
     window.LIVE). Multi-experiment callers pass their own ledger_path/store_path,
     set write_js=False, and use return_payload=True to collect the display dict.
+
+    exit_mode "time" = fixed hold_hours (original). "normalize" = also exit early
+    when the L/S percentile returns to [neutral_lo, neutral_hi] (reversion done),
+    after min_hold_hours, with hold_hours as the max cap.
     """
     client = BinanceFutures()                       # public data only, no keys
     df = update_store(client, symbol, store_path)
@@ -130,14 +136,18 @@ def tick(params: Params = Params(), symbol: str = SYMBOL,
     equity = led["equity"]
     acted = False
 
-    # --- manage an open position: mark-to-market, then 3-day time exit ------
+    # --- manage an open position: mark-to-market, then exit (time / normalize) ---
     unrealized = 0.0
+    cur_pct = float(bar["pct"]) if pd.notna(bar["pct"]) else None
     if pos:
         d = 1 if pos["side"] == "LONG" else -1
         unrealized = pos["notional"] * d * (price / pos["entry_px"] - 1.0)
         entry_candle = pd.Timestamp(pos["entry_candle"])
         age_h = (candle_ts - entry_candle) / pd.Timedelta(hours=1)
-        if age_h >= params.hold_hours and led["last_acted_candle"] != candle_iso:
+        time_exit = age_h >= params.hold_hours          # hold_hours = time exit / max cap
+        norm_exit = (exit_mode == "normalize" and age_h >= min_hold_hours
+                     and cur_pct is not None and neutral_lo <= cur_pct <= neutral_hi)
+        if (time_exit or norm_exit) and led["last_acted_candle"] != candle_iso:
             gross = d * (price / pos["entry_px"] - 1.0)
             pnl = pos["notional"] * gross - pos["notional"] * cps   # exit-leg cost
             equity += pnl
