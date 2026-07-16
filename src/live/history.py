@@ -23,11 +23,18 @@ from ..data.download import _session, load_klines, load_lsr
 from .binance_client import BinanceFutures
 
 ROOT = Path(__file__).resolve().parents[2]
-SEED = ROOT / "data" / "hourly.parquet"
+SEED = ROOT / "data" / "hourly.parquet"                    # BTC pre-built seed
+RESEARCH = ROOT / "data" / "research"                       # per-symbol cached seeds
 
 
 def _bootstrap(symbol: str, days: int = 110) -> pd.DataFrame:
-    if SEED.exists():
+    # per-symbol cached seed (ADA/DOGE/… have their own file — never seed with BTC)
+    cached = RESEARCH / f"{symbol}_hourly.parquet"
+    if cached.exists():
+        df = pd.read_parquet(cached)
+        return df[["close", "lsr"]].tail(days * 24).copy()
+    # BTC's pre-built seed only applies to BTC
+    if symbol == "BTCUSDT" and SEED.exists():
         df = pd.read_parquet(SEED)
         return df[["close", "lsr"]].tail(days * 24).copy()
     sess = _session()

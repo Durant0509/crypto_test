@@ -1,0 +1,187 @@
+{
+  "btc": {
+    "num_trades": 259,
+    "worst_mae_pct": -16.4,
+    "median_mae_pct": -2.0,
+    "mean_mae_pct": -2.7,
+    "p95_mae_pct": -7.1,
+    "theoretical_max_leverage": 5.9,
+    "max_safe_leverage": 5,
+    "recommended_leverage": 3,
+    "verdict": "up to 3x (historical-safe ceiling 5x, buffered)",
+    "mmr": 0.005,
+    "table": [
+      {
+        "leverage": 1,
+        "liq_move_pct": 99.5,
+        "liquidated_trades": 0,
+        "liquidated_pct": 0.0,
+        "survives": true
+      },
+      {
+        "leverage": 2,
+        "liq_move_pct": 49.5,
+        "liquidated_trades": 0,
+        "liquidated_pct": 0.0,
+        "survives": true
+      },
+      {
+        "leverage": 3,
+        "liq_move_pct": 32.8,
+        "liquidated_trades": 0,
+        "liquidated_pct": 0.0,
+        "survives": true
+      },
+      {
+        "leverage": 5,
+        "liq_move_pct": 19.5,
+        "liquidated_trades": 0,
+        "liquidated_pct": 0.0,
+        "survives": true
+      },
+      {
+        "leverage": 7,
+        "liq_move_pct": 13.8,
+        "liquidated_trades": 1,
+        "liquidated_pct": 0.39,
+        "survives": false
+      },
+      {
+        "leverage": 10,
+        "liq_move_pct": 9.5,
+        "liquidated_trades": 3,
+        "liquidated_pct": 1.16,
+        "survives": false
+      },
+      {
+        "leverage": 15,
+        "liq_move_pct": 6.2,
+        "liquidated_trades": 20,
+        "liquidated_pct": 7.72,
+        "survives": false
+      },
+      {
+        "leverage": 20,
+        "liq_move_pct": 4.5,
+        "liquidated_trades": 52,
+        "liquidated_pct": 20.08,
+        "survives": false
+      },
+      {
+        "leverage": 25,
+        "liq_move_pct": 3.5,
+        "liquidated_trades": 77,
+        "liquidated_pct": 29.73,
+        "survives": false
+      }
+    ],
+    "buckets": [
+      {
+        "worse_than_pct": 2,
+        "trades": 129,
+        "pct": 49.8
+      },
+      {
+        "worse_than_pct": 5,
+        "trades": 39,
+        "pct": 15.1
+      },
+      {
+        "worse_than_pct": 10,
+        "trades": 2,
+        "pct": 0.8
+      },
+      {
+        "worse_than_pct": 15,
+        "trades": 1,
+        "pct": 0.4
+      },
+      {
+        "worse_than_pct": 20,
+        "trades": 0,
+        "pct": 0.0
+      },
+      {
+        "worse_than_pct": 25,
+        "trades": 0,
+        "pct": 0.0
+      },
+      {
+        "worse_than_pct": 33,
+        "trades": 0,
+        "pct": 0.0
+      },
+      {
+        "worse_than_pct": 50,
+        "trades": 0,
+        "pct": 0.0
+      }
+    ],
+    "symbol": "BTCUSDT",
+    "sharpe": 1.31,
+    "max_drawdown_pct": -24.5
+  },
+  "by_coin": [
+    {
+      "symbol": "BTCUSDT",
+      "worst_mae_pct": -16.4,
+      "max_safe_leverage": 5,
+      "recommended_leverage": 3,
+      "sharpe": 1.31,
+      "max_drawdown_pct": -24.5
+    },
+    {
+      "symbol": "ETHUSDT",
+      "worst_mae_pct": -21.1,
+      "max_safe_leverage": 3,
+      "recommended_leverage": 2,
+      "sharpe": 0.8,
+      "max_drawdown_pct": -30.9
+    },
+    {
+      "symbol": "ADAUSDT",
+      "worst_mae_pct": -22.9,
+      "max_safe_leverage": 3,
+      "recommended_leverage": 2,
+      "sharpe": 1.1,
+      "max_drawdown_pct": -27.6
+    },
+    {
+      "symbol": "SOLUSDT",
+      "worst_mae_pct": -39.5,
+      "max_safe_leverage": 2,
+      "recommended_leverage": 1,
+      "sharpe": 0.6,
+      "max_drawdown_pct": -35.3
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "worst_mae_pct": -29.9,
+      "max_safe_leverage": 3,
+      "recommended_leverage": 2,
+      "sharpe": 0.76,
+      "max_drawdown_pct": -41.6
+    },
+    {
+      "symbol": "BNBUSDT",
+      "worst_mae_pct": -25.2,
+      "max_safe_leverage": 3,
+      "recommended_leverage": 2,
+      "sharpe": 0.05,
+      "max_drawdown_pct": -52.6
+    },
+    {
+      "symbol": "XRPUSDT",
+      "worst_mae_pct": -106.2,
+      "max_safe_leverage": 0,
+      "recommended_leverage": 0,
+      "sharpe": -0.03,
+      "max_drawdown_pct": -115.8
+    }
+  ],
+  "notes": {
+    "mmr": 0.005,
+    "safety_factor": 2.0,
+    "method": "isolated-margin per-position; liq at 1/L - mmr adverse price move; MAE from hourly high/low (real ticks may be worse)"
+  }
+}

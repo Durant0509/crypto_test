@@ -3,234 +3,346 @@
     {
       "lookback_days": 30,
       "sharpe": 0.68,
-      "total_%": 152,
-      "maxDD_%": -29.0,
+      "total_pct": 152,
+      "cagr_pct": 23,
+      "maxdd_pct": -29.0,
       "trades": 335,
-      "win_%": 49.6
+      "days_per_trade": 4.9,
+      "win_pct": 49.6,
+      "pf": 1.33,
+      "worst_mae_pct": -16.0
     },
     {
       "lookback_days": 45,
       "sharpe": 1.55,
-      "total_%": 312,
-      "maxDD_%": -18.2,
+      "total_pct": 312,
+      "cagr_pct": 37,
+      "maxdd_pct": -18.2,
       "trades": 306,
-      "win_%": 55.2
+      "days_per_trade": 5.4,
+      "win_pct": 55.2,
+      "pf": 1.84,
+      "worst_mae_pct": -13.0
     },
     {
       "lookback_days": 60,
       "sharpe": 1.45,
-      "total_%": 289,
-      "maxDD_%": -22.8,
+      "total_pct": 289,
+      "cagr_pct": 35,
+      "maxdd_pct": -22.8,
       "trades": 291,
-      "win_%": 52.2
+      "days_per_trade": 5.6,
+      "win_pct": 52.2,
+      "pf": 1.79,
+      "worst_mae_pct": -19.8
     },
     {
       "lookback_days": 90,
       "sharpe": 1.31,
-      "total_%": 257,
-      "maxDD_%": -24.5,
+      "total_pct": 257,
+      "cagr_pct": 33,
+      "maxdd_pct": -24.5,
       "trades": 259,
-      "win_%": 52.5
+      "days_per_trade": 6.3,
+      "win_pct": 52.5,
+      "pf": 1.79,
+      "worst_mae_pct": -16.4
     },
     {
       "lookback_days": 120,
       "sharpe": 1.0,
-      "total_%": 185,
-      "maxDD_%": -27.0,
+      "total_pct": 185,
+      "cagr_pct": 26,
+      "maxdd_pct": -27.0,
       "trades": 246,
-      "win_%": 49.2
+      "days_per_trade": 6.7,
+      "win_pct": 49.2,
+      "pf": 1.53,
+      "worst_mae_pct": -13.0
     },
     {
       "lookback_days": 150,
       "sharpe": 0.74,
-      "total_%": 128,
-      "maxDD_%": -26.6,
+      "total_pct": 128,
+      "cagr_pct": 20,
+      "maxdd_pct": -26.6,
       "trades": 226,
-      "win_%": 53.5
+      "days_per_trade": 7.3,
+      "win_pct": 53.5,
+      "pf": 1.4,
+      "worst_mae_pct": -12.2
     },
     {
       "lookback_days": 180,
       "sharpe": 0.85,
-      "total_%": 149,
-      "maxDD_%": -39.1,
+      "total_pct": 149,
+      "cagr_pct": 23,
+      "maxdd_pct": -39.1,
       "trades": 215,
-      "win_%": 48.8
+      "days_per_trade": 7.6,
+      "win_pct": 48.8,
+      "pf": 1.52,
+      "worst_mae_pct": -12.0
     }
   ],
   "threshold": [
     {
       "cutoff": "80/20",
       "sharpe": 1.24,
-      "total_%": 266,
-      "maxDD_%": -17.4,
+      "total_pct": 266,
+      "cagr_pct": 34,
+      "maxdd_pct": -17.4,
       "trades": 366,
-      "win_%": 48.4
+      "days_per_trade": 4.5,
+      "win_pct": 48.4,
+      "pf": 1.55,
+      "worst_mae_pct": -12.6
     },
     {
       "cutoff": "85/15",
       "sharpe": 1.13,
-      "total_%": 234,
-      "maxDD_%": -15.5,
+      "total_pct": 234,
+      "cagr_pct": 31,
+      "maxdd_pct": -15.5,
       "trades": 317,
-      "win_%": 53.0
+      "days_per_trade": 5.2,
+      "win_pct": 53.0,
+      "pf": 1.53,
+      "worst_mae_pct": -17.0
     },
     {
       "cutoff": "90/10",
       "sharpe": 1.31,
-      "total_%": 257,
-      "maxDD_%": -24.5,
+      "total_pct": 257,
+      "cagr_pct": 33,
+      "maxdd_pct": -24.5,
       "trades": 259,
-      "win_%": 52.5
+      "days_per_trade": 6.3,
+      "win_pct": 52.5,
+      "pf": 1.79,
+      "worst_mae_pct": -16.4
     },
     {
       "cutoff": "95/5",
       "sharpe": 0.88,
-      "total_%": 144,
-      "maxDD_%": -28.6,
+      "total_pct": 144,
+      "cagr_pct": 22,
+      "maxdd_pct": -28.6,
       "trades": 193,
-      "win_%": 50.3
+      "days_per_trade": 8.5,
+      "win_pct": 50.3,
+      "pf": 1.56,
+      "worst_mae_pct": -14.7
     },
     {
       "cutoff": "97/2",
       "sharpe": 0.7,
-      "total_%": 91,
-      "maxDD_%": -28.1,
+      "total_pct": 91,
+      "cagr_pct": 16,
+      "maxdd_pct": -28.1,
       "trades": 138,
-      "win_%": 50.0
+      "days_per_trade": 11.9,
+      "win_pct": 50.0,
+      "pf": 1.5,
+      "worst_mae_pct": -12.6
     }
   ],
   "hold": [
     {
       "hold_days": 1,
       "sharpe": 0.55,
-      "total_%": 92,
-      "maxDD_%": -31.4,
+      "total_pct": 92,
+      "cagr_pct": 16,
+      "maxdd_pct": -31.4,
       "trades": 587,
-      "win_%": 45.3
+      "days_per_trade": 2.8,
+      "win_pct": 45.3,
+      "pf": 1.23,
+      "worst_mae_pct": -10.4
     },
     {
       "hold_days": 2,
       "sharpe": 1.18,
-      "total_%": 212,
-      "maxDD_%": -21.8,
+      "total_pct": 212,
+      "cagr_pct": 29,
+      "maxdd_pct": -21.8,
       "trades": 345,
-      "win_%": 51.6
+      "days_per_trade": 4.8,
+      "win_pct": 51.6,
+      "pf": 1.56,
+      "worst_mae_pct": -13.2
     },
     {
       "hold_days": 3,
       "sharpe": 1.31,
-      "total_%": 257,
-      "maxDD_%": -24.5,
+      "total_pct": 257,
+      "cagr_pct": 33,
+      "maxdd_pct": -24.5,
       "trades": 259,
-      "win_%": 52.5
+      "days_per_trade": 6.3,
+      "win_pct": 52.5,
+      "pf": 1.79,
+      "worst_mae_pct": -16.4
     },
     {
       "hold_days": 4,
       "sharpe": 1.12,
-      "total_%": 230,
-      "maxDD_%": -29.9,
+      "total_pct": 230,
+      "cagr_pct": 30,
+      "maxdd_pct": -29.9,
       "trades": 212,
-      "win_%": 51.9
+      "days_per_trade": 7.7,
+      "win_pct": 51.9,
+      "pf": 1.66,
+      "worst_mae_pct": -17.9
     },
     {
       "hold_days": 5,
       "sharpe": 0.93,
-      "total_%": 195,
-      "maxDD_%": -62.1,
+      "total_pct": 195,
+      "cagr_pct": 27,
+      "maxdd_pct": -62.1,
       "trades": 177,
-      "win_%": 52.0
+      "days_per_trade": 9.3,
+      "win_pct": 52.0,
+      "pf": 1.56,
+      "worst_mae_pct": -26.8
     },
     {
       "hold_days": 7,
       "sharpe": 0.64,
-      "total_%": 131,
-      "maxDD_%": -65.7,
+      "total_pct": 131,
+      "cagr_pct": 21,
+      "maxdd_pct": -65.7,
       "trades": 143,
-      "win_%": 51.7
+      "days_per_trade": 11.5,
+      "win_pct": 51.7,
+      "pf": 1.38,
+      "worst_mae_pct": -25.8
     },
     {
       "hold_days": 10,
       "sharpe": 0.69,
-      "total_%": 168,
-      "maxDD_%": -50.5,
+      "total_pct": 168,
+      "cagr_pct": 25,
+      "maxdd_pct": -50.5,
       "trades": 109,
-      "win_%": 55.0
+      "days_per_trade": 15.0,
+      "win_pct": 55.0,
+      "pf": 1.52,
+      "worst_mae_pct": -27.4
     }
   ],
   "vol": [
     {
       "vol_target": "fixed 1x",
       "sharpe": 1.2,
-      "total_%": 184,
-      "maxDD_%": -23.4,
+      "total_pct": 184,
+      "cagr_pct": 26,
+      "maxdd_pct": -23.4,
       "trades": 259,
-      "win_%": 52.5
+      "days_per_trade": 6.3,
+      "win_pct": 52.5,
+      "pf": 1.67,
+      "worst_mae_pct": -16.4
     },
     {
       "vol_target": 0.015,
       "sharpe": 1.29,
-      "total_%": 153,
-      "maxDD_%": -16.6,
+      "total_pct": 153,
+      "cagr_pct": 23,
+      "maxdd_pct": -16.6,
       "trades": 259,
-      "win_%": 52.5
+      "days_per_trade": 6.3,
+      "win_pct": 52.5,
+      "pf": 1.79,
+      "worst_mae_pct": -16.4
     },
     {
       "vol_target": 0.02,
       "sharpe": 1.29,
-      "total_%": 204,
-      "maxDD_%": -20.8,
+      "total_pct": 204,
+      "cagr_pct": 28,
+      "maxdd_pct": -20.8,
       "trades": 259,
-      "win_%": 52.5
+      "days_per_trade": 6.3,
+      "win_pct": 52.5,
+      "pf": 1.79,
+      "worst_mae_pct": -16.4
     },
     {
       "vol_target": 0.025,
       "sharpe": 1.31,
-      "total_%": 257,
-      "maxDD_%": -24.5,
+      "total_pct": 257,
+      "cagr_pct": 33,
+      "maxdd_pct": -24.5,
       "trades": 259,
-      "win_%": 52.5
+      "days_per_trade": 6.3,
+      "win_pct": 52.5,
+      "pf": 1.79,
+      "worst_mae_pct": -16.4
     },
     {
       "vol_target": 0.03,
       "sharpe": 1.33,
-      "total_%": 306,
-      "maxDD_%": -27.9,
+      "total_pct": 306,
+      "cagr_pct": 37,
+      "maxdd_pct": -27.9,
       "trades": 259,
-      "win_%": 52.5
+      "days_per_trade": 6.3,
+      "win_pct": 52.5,
+      "pf": 1.79,
+      "worst_mae_pct": -16.4
     },
     {
       "vol_target": 0.04,
       "sharpe": 1.31,
-      "total_%": 382,
-      "maxDD_%": -33.6,
+      "total_pct": 382,
+      "cagr_pct": 42,
+      "maxdd_pct": -33.6,
       "trades": 259,
-      "win_%": 52.5
+      "days_per_trade": 6.3,
+      "win_pct": 52.5,
+      "pf": 1.76,
+      "worst_mae_pct": -16.4
     }
   ],
   "timeframe": [
     {
       "timeframe": "1h",
       "sharpe": 1.31,
-      "total_%": 257,
-      "maxDD_%": -24.5,
+      "total_pct": 257,
+      "cagr_pct": 33,
+      "maxdd_pct": -24.5,
       "trades": 259,
-      "win_%": 52.5
+      "days_per_trade": 6.3,
+      "win_pct": 52.5,
+      "pf": 1.79,
+      "worst_mae_pct": -16.4
     },
     {
       "timeframe": "2h",
       "sharpe": 1.31,
-      "total_%": 188,
-      "maxDD_%": -19.9,
+      "total_pct": 188,
+      "cagr_pct": 27,
+      "maxdd_pct": -19.9,
       "trades": 251,
-      "win_%": 55.8
+      "days_per_trade": 6.5,
+      "win_pct": 55.8,
+      "pf": 1.83,
+      "worst_mae_pct": -16.4
     },
     {
       "timeframe": "4h",
       "sharpe": 1.27,
-      "total_%": 130,
-      "maxDD_%": -15.8,
+      "total_pct": 130,
+      "cagr_pct": 20,
+      "maxdd_pct": -15.8,
       "trades": 246,
-      "win_%": 56.1
+      "days_per_trade": 6.7,
+      "win_pct": 56.1,
+      "pf": 1.78,
+      "worst_mae_pct": -13.2
     }
   ],
   "grid": {
@@ -268,6 +380,39 @@
       "4": 0.65,
       "5": 0.53,
       "7": 0.24
+    }
+  },
+  "baseline": {
+    "sharpe": 1.31,
+    "total_pct": 257,
+    "cagr_pct": 33,
+    "maxdd_pct": -24.5,
+    "trades": 259,
+    "days_per_trade": 6.3,
+    "win_pct": 52.5,
+    "pf": 1.79,
+    "worst_mae_pct": -16.4
+  },
+  "best": {
+    "config": {
+      "lookback_days": 45,
+      "upper": 0.9,
+      "lower": 0.1,
+      "hold_days": 3,
+      "vol_target": 0.025,
+      "smin": 0.25,
+      "smax": 3.0
+    },
+    "metrics": {
+      "sharpe": 1.55,
+      "total_pct": 312,
+      "cagr_pct": 37,
+      "maxdd_pct": -18.2,
+      "trades": 306,
+      "days_per_trade": 5.4,
+      "win_pct": 55.2,
+      "pf": 1.84,
+      "worst_mae_pct": -13.0
     }
   }
 }

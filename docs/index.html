@@ -75,6 +75,44 @@
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(224,87,74,.55)}70%{box-shadow:0 0 0 7px rgba(224,87,74,0)}100%{box-shadow:0 0 0 0 rgba(224,87,74,0)}}
   section{display:none} section.on{display:block}
 
+  /* research views */
+  .callout{display:flex;flex-wrap:wrap;gap:26px;align-items:center}
+  .callout .big{font-size:38px;font-weight:750;line-height:1;color:var(--teal)}
+  .callout .lbl{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+  .callout .unit{font-size:18px;color:var(--mut);font-weight:600}
+  td.good,th.good{color:var(--green)} td.bad{color:var(--red)}
+  td.best{background:#12332a;color:#5fe0aa;font-weight:700}
+  .idea{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:15px 18px;margin-bottom:11px;display:flex;gap:15px}
+  .idea .num{flex:0 0 34px;height:34px;border-radius:9px;background:var(--tealdim);color:#eafffb;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px}
+  .idea .body{flex:1}
+  .idea .top{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-bottom:5px}
+  .idea .ttl{font-size:16px;font-weight:650}
+  .idea .why{color:var(--mut);font-size:13.5px;line-height:1.6}
+  .chip{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--border);color:var(--mut)}
+  .chip.hi{color:#5fe0aa;border-color:#1f5a44} .chip.mid{color:var(--amber);border-color:#4a3d1e}
+  .verdict{font-size:15px;padding:10px 14px;border-radius:10px;margin-top:10px}
+  .verdict.ok{background:#0f2e22;color:var(--green)} .verdict.warn{background:#331716;color:var(--red)}
+
+  /* live experiment cards */
+  .expgrid{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:900px){.expgrid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.expgrid{grid-template-columns:1fr}}
+  .expcard{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:14px 15px;cursor:pointer;transition:border-color .15s,background .15s}
+  .expcard:hover{border-color:var(--tealdim)}
+  .expcard.sel{border-color:var(--teal);background:#10201f}
+  .expcard.base{border-left:3px solid var(--gray)}
+  .expcard:not(.base){border-left:3px solid var(--teal)}
+  .exphd{display:flex;align-items:center;gap:8px;margin-bottom:3px}
+  .expcoin{font-size:19px;font-weight:750}
+  .expcat{font-size:11.5px;color:var(--mut);margin-bottom:11px;line-height:1.35;min-height:31px}
+  .expeq{font-size:25px;font-weight:750;letter-spacing:-.01em}.expeq .u{font-size:13px;color:var(--mut);margin-left:3px}
+  .expret{font-size:14px;font-weight:700;margin-bottom:9px}
+  .expsig{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .expsig .pill{font-size:12px;padding:3px 10px}
+  .expmeta{font-size:11.5px;color:var(--mut)}
+  .parambar{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:8px}
+  .parambar .pi{font-size:12.5px}.parambar .pi b{color:var(--tx)}.parambar .pi span{color:var(--mut)}
+
   /* live hero */
   .hero{display:flex;flex-wrap:wrap;align-items:flex-end;gap:28px;margin-bottom:16px}
   .hero .eq{font-size:44px;font-weight:750;line-height:1;letter-spacing:-.02em}
@@ -100,14 +138,18 @@
   <div class="tabs">
     <button id="tab-live" class="on"><span class="dot"></span>實時模擬</button>
     <button id="tab-bt">📊 五年回測</button>
+    <button id="tab-coins">🪙 多幣種</button>
+    <button id="tab-params">🎛️ 參數優化</button>
+    <button id="tab-lev">⚠️ 槓桿安全</button>
+    <button id="tab-wf">🔬 前推驗證</button>
+    <button id="tab-ideas">💡 未來方向</button>
   </div>
 
-  <!-- ==================== LIVE PAPER-TRADING VIEW ==================== -->
+  <!-- ==================== LIVE PAPER-TRADING VIEW (multi-experiment) ==================== -->
   <section id="view-live" class="on">
-    <div class="panel" style="margin-bottom:14px">
-      <div class="hero" id="liveHero"></div>
-      <div id="liveSignal" class="signal" style="border-top:1px solid var(--border);padding-top:16px;margin-bottom:0"></div>
-    </div>
+    <p class="sub">多個<b>獨立</b>紙上模擬並行（虛擬各 1000 U · 即時訊號 · 真實價格 · 每小時更新）。每張卡上方標明<b>該實驗用的參數類別</b>。點卡片看下方詳情。</p>
+    <div class="grid expgrid" id="expCards" style="margin-bottom:6px"></div>
+    <div class="panel" id="expDetailHdr" style="margin:16px 0 14px"></div>
     <div class="panel" style="margin-bottom:14px">
       <h2>目前持倉</h2>
       <div id="livePos"></div>
@@ -193,6 +235,90 @@
     </div>
   </div>
 
+  </section>
+
+  <!-- ==================== MULTI-COIN VIEW ==================== -->
+  <section id="view-coins">
+    <p class="sub">同一套策略跑過 14 檔永續合約。<b>基準</b>＝與 BTC 相同參數；<b>調優</b>＝每檔各自最佳 lookback。用來分辨哪些幣是<b>真的有邊際</b>、哪些只是在 BTC 參數下看起來差。</p>
+    <div class="panel" style="margin-bottom:14px">
+      <h2>調優後夏普值排名（每檔自己最佳 lookback）</h2>
+      <div class="chart-tall"><canvas id="coinSharpe"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="controls">
+        <div class="seg" id="coinVariant">
+          <button data-v="tuned" class="on">調優</button><button data-v="baseline">基準（BTC 參數）</button>
+        </div>
+        <span class="stat">點欄位標題可排序</span>
+      </div>
+      <div class="tblwrap"><table id="coinTbl"><thead></thead><tbody></tbody></table></div>
+      <div class="note" id="coinNote"></div>
+    </div>
+  </section>
+
+  <!-- ==================== PARAMETER OPTIMISATION VIEW ==================== -->
+  <section id="view-params">
+    <div class="panel" id="bestCfg" style="margin-bottom:14px"></div>
+    <div class="panel" style="margin-bottom:14px">
+      <h2>累積報酬：現行參數（90天）vs 調優（45天）</h2>
+      <div class="chart-tall"><canvas id="tuneOverlay"></canvas></div>
+    </div>
+    <p class="sub">每個旋鈕單獨掃描（其餘固定為現行值）。<b>綠色</b>＝比現行更好，<b>紅色</b>＝更差。每格都附交易頻率、回撤、勝率，方便權衡。</p>
+    <div id="sweepTables"></div>
+    <div class="panel">
+      <h2>參數平原：夏普值熱圖（lookback × 持有天數）</h2>
+      <div class="tblwrap"><table id="gridTbl"><thead></thead><tbody></tbody></table></div>
+      <div class="note">一整片高夏普區間（非單一尖峰）代表不是碰巧撞到的過擬合特例。</div>
+    </div>
+  </section>
+
+  <!-- ==================== LEVERAGE SAFETY VIEW ==================== -->
+  <section id="view-lev">
+    <p class="sub">本策略<b>無停損</b>，唯一擋在壞交易與爆倉之間的就是槓桿。方法：每筆交易記錄持有期間<b>最慘的價格逆行（MAE）</b>，隔離保證金下，槓桿 L 的部位約在逆行 <code>1/L − 維持保證金</code> 時被強平。</p>
+    <div class="grid kpis" id="levKpis" style="margin-bottom:14px"></div>
+    <div class="grid two" style="margin-bottom:14px">
+      <div class="panel">
+        <h2>BTC · 各槓桿爆倉檢查</h2>
+        <div class="tblwrap"><table id="levTbl"><thead></thead><tbody></tbody></table></div>
+      </div>
+      <div class="panel">
+        <h2>BTC · 單筆最慘逆行分布</h2>
+        <div class="chart-mid"><canvas id="maeHist"></canvas></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>各幣種安全槓桿</h2>
+      <div class="tblwrap"><table id="levCoinTbl"><thead></thead><tbody></tbody></table></div>
+      <div class="note" id="levNote"></div>
+    </div>
+  </section>
+
+  <!-- ==================== WALK-FORWARD VIEW ==================== -->
+  <section id="view-wf">
+    <p class="sub">分辨「真有效」與「事後硬湊」最重要的檢驗。滾動：用 <b>365 天訓練窗</b>挑最佳 lookback，套到<b>接下來 90 天（完全沒看過）</b>，往前滾 14 次。每檔<b>獨立</b>跑。核心問題：樣本內找到的 45 天，在沒看過的資料上還站得住嗎？</p>
+    <div class="panel" style="margin-bottom:14px">
+      <h2>樣本外夏普值：固定 45天 vs 固定 90天 vs 自適應</h2>
+      <div class="chart-mid"><canvas id="wfBar"></canvas></div>
+      <div class="note" id="wfVerdict"></div>
+    </div>
+    <div class="panel" style="margin-bottom:14px">
+      <h2>各幣獨立 · 樣本外累積報酬曲線（僅測試窗串接）</h2>
+      <div class="chart-tall"><canvas id="wfEquity"></canvas></div>
+    </div>
+    <div class="panel">
+      <h2>逐窗明細</h2>
+      <div class="controls">
+        <div class="seg" id="wfCoin"></div>
+        <span class="stat" id="wfStat"></span>
+      </div>
+      <div class="tblwrap" style="max-height:420px"><table id="wfTbl"><thead></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- ==================== IDEAS BACKLOG VIEW ==================== -->
+  <section id="view-ideas">
+    <p class="sub">綜合 4 本量化書 + 14 幣回測後，可嘗試的方向（依優先度排序）。我們可以一項一項來。</p>
+    <div id="ideaList"></div>
   </section>
 
   <p class="foot" id="foot"></p>
@@ -313,7 +439,9 @@ document.getElementById("foot").innerHTML =
   `本頁所有績效數字均為<b>歷史資料模擬（回測）</b>結果，非實際交易績效，不代表未來表現。策略目前僅在 Binance 測試網（模擬資金）運行。加密貨幣槓桿交易可能導致損失超過本金。本頁不構成投資建議。<br>資料來源：Binance Vision 公開歷史資料（K 線 + 全體帳戶多空比）。原始碼與交易明細見 <a href="https://github.com/Durant0509/crypto_test">GitHub repo</a>。<br>頁面所有時間為 <b>UTC+8（台北時間）</b>。`;
 
 // ==================== tabs ====================
-const TABS={live:["tab-live","view-live"], bt:["tab-bt","view-backtest"]};
+const TABS={live:["tab-live","view-live"], bt:["tab-bt","view-backtest"],
+  coins:["tab-coins","view-coins"], params:["tab-params","view-params"],
+  lev:["tab-lev","view-lev"], wf:["tab-wf","view-wf"], ideas:["tab-ideas","view-ideas"]};
 function show(which){
   for(const [b,s] of Object.values(TABS)){
     document.getElementById(b).classList.remove("on");
@@ -324,53 +452,278 @@ function show(which){
   // charts created while hidden render at 0px — resize once visible
   setTimeout(()=>document.querySelectorAll("canvas").forEach(c=>{const ch=Chart.getChart(c); if(ch) ch.resize();}),40);
 }
-document.getElementById("tab-live").onclick=()=>show("live");
-document.getElementById("tab-bt").onclick=()=>show("bt");
+Object.keys(TABS).forEach(k=>document.getElementById(TABS[k][0]).onclick=()=>show(k));
 
-// ==================== live paper view ====================
-const V = window.LIVE;
-if(!V){
-  document.getElementById("liveHero").innerHTML='<div class="empty">尚未開始——等待第一次每小時自動 tick 產生資料。</div>';
-  document.getElementById("liveSignal").style.display="none";
+// ==================== research views (multi-coin / params / leverage / ideas) ====================
+if(window.RESEARCH) renderResearch(window.RESEARCH);
+else ["coins","params","lev","wf","ideas"].forEach(k=>document.getElementById(TABS[k][0]).style.display="none");
+
+function renderResearch(R){
+  const posneg = x => x>=0?"pos":"neg";
+  // ---- multi-coin ----
+  const MC = R.multi_coin;
+  const coinCols = [["symbol","幣種"],["lookback_days","LB天"],["sharpe","夏普"],["total_pct","總報酬%"],
+    ["maxdd_pct","最大回撤%"],["trades","筆數"],["days_per_trade","每筆天數"],["win_pct","勝率%"],
+    ["pf","獲利因子"],["worst_mae_pct","最慘逆行%"],["corr_btc","與BTC相關"]];
+  let coinVariant="tuned", coinSortK="sharpe", coinSortDir=-1;
+  function coinRows(){ return (MC[coinVariant]||[]).slice().sort((a,b)=>{
+    let x=a[coinSortK],y=b[coinSortK]; if(x==null)x=-1e9; if(y==null)y=-1e9;
+    return typeof x==="string"?(x>y?1:-1)*coinSortDir:(x-y)*coinSortDir;}); }
+  function renderCoinTbl(){
+    const rows=coinRows();
+    document.querySelector("#coinTbl thead").innerHTML="<tr>"+coinCols.map(c=>`<th data-k="${c[0]}">${c[1]}</th>`).join("")+"</tr>";
+    document.querySelector("#coinTbl tbody").innerHTML=rows.map(r=>"<tr>"+coinCols.map(c=>{
+      let v=r[c[0]]; const k=c[0];
+      if(v==null) v="—";
+      let cls=""; if(k==="sharpe") cls=v!=="—"&&v>=1?"good":(v!=="—"&&v<0?"bad":"");
+      if(k==="maxdd_pct"||k==="worst_mae_pct") cls = (v!=="—"&&v<=-50)?"bad":"";
+      if(k==="symbol") return `<td>${v}</td>`;
+      return `<td class="${cls}">${v}</td>`;}).join("")+"</tr>").join("");
+    document.querySelectorAll("#coinTbl thead th").forEach(th=>th.onclick=()=>{
+      const k=th.dataset.k; coinSortDir=(coinSortK===k)?-coinSortDir:-1; coinSortK=k; renderCoinTbl();});
+  }
+  document.querySelectorAll("#coinVariant button").forEach(b=>b.onclick=()=>{
+    coinVariant=b.dataset.v; document.querySelectorAll("#coinVariant button").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on"); renderCoinTbl();});
+  renderCoinTbl();
+  document.getElementById("coinNote").innerHTML=
+    "🪙 只有 <b>BTC、ADA</b>（調優夏普 1.5+、回撤可控、最慘逆行 −13~−24%）在開槓桿下能存活。"+
+    "多數 alt（TRX/DOT/XRP/LTC/PEPE）最慘逆行 −78~−117%＝開槓桿必爆。結論：走<b>幣種白名單</b>。";
+  const tunedSorted = coinRows.call?null:null;
+  const cs=(MC.tuned||[]).slice().sort((a,b)=>(b.sharpe||-9)-(a.sharpe||-9));
+  new Chart(document.getElementById("coinSharpe"),{type:"bar",
+    data:{labels:cs.map(r=>r.symbol.replace("USDT","")),datasets:[{data:cs.map(r=>r.sharpe),
+      backgroundColor:cs.map(r=>r.sharpe>=1?"#2dd4bf":r.sharpe>=0.5?"#e0b34a":"#e0574a")}]},
+    options:{maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>` 夏普 ${c.parsed.y}`}}},
+      scales:{x:{grid:{display:false}},y:{grid:{color:"#162325"},title:{display:true,text:"夏普值"}}}}});
+
+  // ---- parameter optimisation ----
+  const PS=R.param_sweep, best=PS.best;
+  const b=best.metrics, bc=best.config, baseM=PS.baseline;
+  document.getElementById("bestCfg").innerHTML=`<h2>樣本內最佳參數</h2>
+    <div class="callout">
+      <div><div class="lbl">夏普值</div><div class="big">${b.sharpe}</div><div class="sub">現行 ${baseM.sharpe}</div></div>
+      <div><div class="lbl">總報酬</div><div class="big">+${b.total_pct}<span class="unit">%</span></div><div class="sub">現行 +${baseM.total_pct}%</div></div>
+      <div><div class="lbl">最大回撤</div><div class="big">${b.maxdd_pct}<span class="unit">%</span></div><div class="sub">現行 ${baseM.maxdd_pct}%（更小更好）</div></div>
+      <div><div class="lbl">勝率</div><div class="big">${b.win_pct}<span class="unit">%</span></div><div class="sub">現行 ${baseM.win_pct}%</div></div>
+      <div><div class="lbl">交易頻率</div><div class="big">${b.days_per_trade}<span class="unit">天/筆</span></div><div class="sub">${b.trades} 筆</div></div>
+    </div>
+    <div class="verdict warn">⚠️ 最佳組合 = <b>lookback ${bc.lookback_days}天</b>（現行 90天），其餘不變。Sharpe、回撤、勝率、槓桿安全性<b>同時改善</b>——但這是<b>樣本內最佳化</b>。現行 90 天是報告的 walk-forward 保守選擇；45 天上線前<b>必須先做 walk-forward 樣本外驗證</b>，否則可能是過擬合。</div>`;
+
+  const ov=R.btc_overlay;
+  new Chart(document.getElementById("tuneOverlay"),{type:"line",
+    data:{labels:ov.labels,datasets:[
+      {label:`現行 90天 (夏普 ${baseM.sharpe})`,data:ov.baseline,borderColor:"#7f9298",radius:0,borderWidth:1.6,tension:.05,fill:false},
+      {label:`調優 45天 (夏普 ${b.sharpe})`,data:ov.tuned,borderColor:"#2dd4bf",radius:0,borderWidth:1.8,tension:.05,fill:false}]},
+    options:{maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
+      plugins:{legend:{labels:{boxWidth:12,boxHeight:2}},tooltip:{callbacks:{label:c=>` ${c.dataset.label}: +${c.parsed.y}%`}}},
+      scales:{x:{ticks:{maxTicksLimit:9},grid:{display:false}},y:{ticks:{callback:v=>v+"%"},grid:{color:"#162325"}}}}});
+
+  const sweepDefs=[["lookback","lookback_days","Lookback（天）"],["threshold","cutoff","進場門檻（百分位）"],
+    ["hold","hold_days","持有天數"],["vol","vol_target","波動目標"],["timeframe","timeframe","時間週期"]];
+  const metricCols=[["sharpe","夏普"],["total_pct","總報酬%"],["maxdd_pct","回撤%"],["trades","筆數"],
+    ["days_per_trade","天/筆"],["win_pct","勝率%"],["pf","PF"],["worst_mae_pct","最慘逆行%"]];
+  document.getElementById("sweepTables").innerHTML=sweepDefs.map(([key,kcol,title])=>{
+    const rows=PS[key]||[]; const bestSharpe=Math.max(...rows.map(r=>r.sharpe??-9));
+    const head="<tr><th>"+title+"</th>"+metricCols.map(m=>`<th>${m[1]}</th>`).join("")+"</tr>";
+    const body=rows.map(r=>{
+      const isBest=r.sharpe===bestSharpe;
+      return "<tr>"+`<td>${r[kcol]}</td>`+metricCols.map(m=>{
+        let v=r[m[0]]; if(v==null)return "<td>—</td>";
+        let cls=""; if(m[0]==="sharpe"){ cls=isBest?"best":(v>=baseM.sharpe?"good":"bad"); }
+        return `<td class="${cls}">${v}</td>`;}).join("")+"</tr>";}).join("");
+    return `<div class="panel" style="margin-bottom:14px"><h2>${title}</h2>
+      <div class="tblwrap"><table>${"<thead>"+head+"</thead>"}<tbody>${body}</tbody></table></div></div>`;}).join("");
+
+  // grid heatmap
+  const grid=PS.grid, holds=Object.keys(Object.values(grid)[0]);
+  document.querySelector("#gridTbl thead").innerHTML="<tr><th>LB＼持有</th>"+holds.map(h=>`<th>${h}天</th>`).join("")+"</tr>";
+  const gvals=[].concat(...Object.values(grid).map(o=>Object.values(o))).filter(x=>x!=null);
+  const gmin=Math.min(...gvals),gmax=Math.max(...gvals);
+  document.querySelector("#gridTbl tbody").innerHTML=Object.keys(grid).map(lb=>{
+    return "<tr><td><b>"+lb+"天</b></td>"+holds.map(h=>{const v=grid[lb][h];
+      if(v==null)return "<td>—</td>";
+      const t=(v-gmin)/(gmax-gmin||1); const bg=`rgba(45,212,191,${(t*0.5+0.05).toFixed(2)})`;
+      return `<td style="background:${bg};color:#eafffb">${v}</td>`;}).join("")+"</tr>";}).join("");
+
+  // ---- leverage safety ----
+  const LV=R.leverage, lb2=LV.btc;
+  document.getElementById("levKpis").innerHTML=[
+    ["建議槓桿（BTC）",lb2.recommended_leverage+"×","tealtx","已含安全緩衝"],
+    ["歷史零爆倉上限",lb2.max_safe_leverage+"×","","此倍數內 0 筆被強平"],
+    ["理論極限",lb2.theoretical_max_leverage+"×","","由單筆最慘逆行推算"],
+    ["單筆最慘逆行",lb2.worst_mae_pct+"%","neg","中位數僅 "+lb2.median_mae_pct+"%"],
+  ].map(k=>`<div class="kpi"><div class="label">${k[0]}</div><div class="val ${k[2]}">${k[1]}</div><div class="sub">${k[3]}</div></div>`).join("");
+  document.querySelector("#levTbl thead").innerHTML="<tr><th>槓桿</th><th>強平逆行</th><th>被強平筆數</th><th>存活</th></tr>";
+  document.querySelector("#levTbl tbody").innerHTML=lb2.table.map(r=>`<tr>
+    <td><b>${r.leverage}×</b></td><td>${r.liq_move_pct}%</td>
+    <td class="${r.liquidated_trades?'bad':''}">${r.liquidated_trades}（${r.liquidated_pct}%）</td>
+    <td class="${r.survives?'good':'bad'}">${r.survives?'✓ 安全':'✗ 爆倉'}</td></tr>`).join("");
+  new Chart(document.getElementById("maeHist"),{type:"bar",
+    data:{labels:lb2.buckets.map(x=>"≥"+x.worse_than_pct+"%"),datasets:[{data:lb2.buckets.map(x=>x.trades),
+      backgroundColor:lb2.buckets.map(x=>x.worse_than_pct>=20?"#e0574a":x.worse_than_pct>=10?"#e0b34a":"#2dd4bf")}]},
+    options:{maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{callbacks:{title:c=>"逆行超過 "+c[0].label,label:c=>` ${c.parsed.y} 筆`}}},
+      scales:{x:{grid:{display:false},title:{display:true,text:"逆行幅度門檻"}},y:{grid:{color:"#162325"},title:{display:true,text:"交易筆數"}}}}});
+  const lc=LV.by_coin||[];
+  document.querySelector("#levCoinTbl thead").innerHTML="<tr><th>幣種</th><th>單筆最慘逆行%</th><th>零爆倉上限</th><th>建議槓桿</th><th>夏普</th><th>最大回撤%</th></tr>";
+  document.querySelector("#levCoinTbl tbody").innerHTML=lc.map(r=>`<tr>
+    <td>${r.symbol.replace("USDT","")}</td>
+    <td class="${r.worst_mae_pct<=-50?'bad':''}">${r.worst_mae_pct}%</td>
+    <td>${r.max_safe_leverage}×</td>
+    <td class="${r.recommended_leverage>=2?'good':(r.recommended_leverage===0?'bad':'')}">${r.recommended_leverage?r.recommended_leverage+'×':'避開'}</td>
+    <td class="${r.sharpe>=1?'good':''}">${r.sharpe}</td><td>${r.max_drawdown_pct}%</td></tr>`).join("");
+  document.getElementById("levNote").innerHTML="方法：隔離保證金、每部位獨立；MAE 取每小時 high/low（真實 tick 可能更糟）；資料僅 Binance 單一交易所。"+
+    "「歷史上安全」不等於「未來安全」——回撤可能比歷史更大，故建議槓桿再打折。無停損策略下，此處房規最高只建議到 3×。";
+
+  // ---- walk-forward ----
+  if(R.walk_forward && Object.keys(R.walk_forward).length){
+    const WF=R.walk_forward, wfCoins=Object.keys(WF);
+    const short=s=>s.replace("USDT","");
+    const palette={BTCUSDT:"#2dd4bf",ADAUSDT:"#e0b34a",DOGEUSDT:"#c99bf5",ETHUSDT:"#7f9298"};
+    // grouped bar: fixed45 / fixed90 / adaptive OOS sharpe
+    new Chart(document.getElementById("wfBar"),{type:"bar",
+      data:{labels:wfCoins.map(short),datasets:[
+        {label:"固定 45天",data:wfCoins.map(c=>WF[c].oos_fixed45.sharpe),backgroundColor:"#2dd4bf"},
+        {label:"固定 90天（現行）",data:wfCoins.map(c=>WF[c].oos_fixed90.sharpe),backgroundColor:"#7f9298"},
+        {label:"自適應（每窗重挑）",data:wfCoins.map(c=>WF[c].oos_adaptive.sharpe),backgroundColor:"#e0b34a"}]},
+      options:{maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12,boxHeight:12}},
+        tooltip:{callbacks:{label:c=>` ${c.dataset.label}: 夏普 ${c.parsed.y}`}}},
+        scales:{x:{grid:{display:false}},y:{grid:{color:"#162325"},title:{display:true,text:"樣本外夏普值"}}}}});
+    document.getElementById("wfVerdict").innerHTML=
+      "✅ <b>45 天 lookback 通過樣本外驗證</b>：BTC（45d 夏普 "+WF.BTCUSDT?.oos_fixed45.sharpe+" vs 90d "+WF.BTCUSDT?.oos_fixed90.sharpe+"）、"+
+      "ADA（"+WF.ADAUSDT?.oos_fixed45.sharpe+" vs "+WF.ADAUSDT?.oos_fixed90.sharpe+"）、DOGE（"+WF.DOGEUSDT?.oos_fixed45.sharpe+" vs "+WF.DOGEUSDT?.oos_fixed90.sharpe+"）"+
+      "在沒看過的資料上，45d 都贏 90d——不是過擬合。<b>ETH 例外</b>（"+WF.ETHUSDT?.oos_fixed45.sharpe+" vs "+WF.ETHUSDT?.oos_fixed90.sharpe+"，90d 較佳、邊際最弱）。"+
+      "另注意：固定 45d 普遍優於「每窗重新最佳化」——過度調參反而加雜訊。";
+    // OOS equity curves (each coin independent), aligned by date
+    const allDates=[...new Set([].concat(...wfCoins.map(c=>WF[c].equity_curve.map(p=>p.d))))].sort();
+    const dsets=wfCoins.map(c=>{const m=Object.fromEntries(WF[c].equity_curve.map(p=>[p.d,p.eq]));
+      let last=0; const data=allDates.map(d=>{if(m[d]!=null)last=m[d];return last;});
+      return {label:short(c),data,borderColor:palette[c]||"#2dd4bf",radius:0,borderWidth:1.7,tension:.05,fill:false};});
+    new Chart(document.getElementById("wfEquity"),{type:"line",
+      data:{labels:allDates,datasets:dsets},
+      options:{maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
+        plugins:{legend:{labels:{boxWidth:12,boxHeight:2}},tooltip:{callbacks:{label:c=>` ${c.dataset.label}: +${c.parsed.y}%`}}},
+        scales:{x:{ticks:{maxTicksLimit:9},grid:{display:false}},y:{ticks:{callback:v=>v+"%"},grid:{color:"#162325"}}}}});
+    // per-window detail table with coin selector
+    let wfSel=wfCoins[0];
+    document.getElementById("wfCoin").innerHTML=wfCoins.map((c,i)=>`<button data-c="${c}" class="${i?'':'on'}">${short(c)}</button>`).join("");
+    function renderWfTbl(){
+      const W=WF[wfSel];
+      document.querySelector("#wfTbl thead").innerHTML="<tr><th>測試窗起</th><th>測試窗迄</th><th>訓練挑選 LB</th><th>夏普</th><th>報酬%</th><th>筆數</th><th>結果</th></tr>";
+      document.querySelector("#wfTbl tbody").innerHTML=W.windows.map(w=>`<tr>
+        <td class="muted">${w.test_start}</td><td class="muted">${w.test_end}</td>
+        <td>${w.picked_lookback}天</td><td class="${w.sharpe>=1?'good':(w.sharpe<0?'bad':'')}">${w.sharpe}</td>
+        <td class="${cls(w.total_pct)}">${w.total_pct>=0?'+':''}${w.total_pct}%</td>
+        <td class="muted">${w.trades}</td>
+        <td class="${w.positive?'good':'bad'}">${w.positive?'✓ 賺':'✗ 賠'}</td></tr>`).join("");
+      document.getElementById("wfStat").innerHTML=`樣本外夏普 <b>${W.oos_fixed45.sharpe}</b>（45d）· 正報酬窗 <b>${W.windows_positive}/${W.n_windows}</b>（${W.windows_positive_pct}%）`;
+    }
+    document.querySelectorAll("#wfCoin button").forEach(b=>b.onclick=()=>{
+      wfSel=b.dataset.c; document.querySelectorAll("#wfCoin button").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); renderWfTbl();});
+    renderWfTbl();
+  }
+
+  // ---- ideas ----
+  document.getElementById("ideaList").innerHTML=R.ideas.map(i=>`<div class="idea">
+    <div class="num">${i.rank}</div>
+    <div class="body"><div class="top"><span class="ttl">${i.title}</span>
+      <span class="chip ${i.impact==='高'?'hi':(i.impact==='中'?'mid':'')}">效益 ${i.impact}</span>
+      <span class="chip">工程 ${i.effort}</span><span class="chip">${i.tag}</span></div>
+      <div class="why">${i.why}</div></div></div>`).join("");
+}
+
+// ==================== live paper view (multi-experiment) ====================
+const num = x => x.toLocaleString(undefined,{maximumFractionDigits:6});
+const tmap = {FLAT:"觀望 FLAT",LONG:"做多 LONG",SHORT:"做空 SHORT"};
+// Build the experiment list: original BTC baseline (window.LIVE) + tuned experiments.
+const EXPS = [];
+if(window.LIVE) EXPS.push(Object.assign({}, window.LIVE, {_baseline:true, meta:{
+  coin:"BTC", variant:"基準 baseline", category:"BTC · 現行 90天 · ≤3x（原本在跑）",
+  lookback_days:90, upper_pct:0.9, lower_pct:0.1, hold_days:3, leverage:3, oos_sharpe:null}}));
+if(window.EXPERIMENTS) window.EXPERIMENTS.forEach(e=>EXPS.push(e));
+let liveSel = 0;
+
+if(!EXPS.length){
+  document.getElementById("expCards").innerHTML='<div class="empty">尚未開始——等待第一次每小時自動 tick 產生資料。</div>';
+  document.getElementById("expDetailHdr").style.display="none";
   document.getElementById("livePos").innerHTML='<div class="empty">—</div>';
-} else { renderLive(V); }
+} else { renderExperiments(); }
 
-function renderLive(V){
-  const ret=V.return_pct;
-  document.getElementById("liveHero").innerHTML=`
-    <div><div class="meta">目前權益（起始 ${V.start_equity} U · ${V.start_time}）</div>
-      <div class="eq">${V.equity.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})} <span style="font-size:20px;color:var(--mut)">USDT</span></div></div>
-    <div><div class="meta">累積報酬</div><div class="ret ${cls(ret)}">${fmtPct(ret,2)}</div></div>
-    <div class="upd"><div class="live-badge"><span class="dot"></span>每小時自動更新</div>
-      <div>最後更新 ${V.updated}</div><div>已平倉 ${V.n_trades} 筆${V.win_rate!=null?" · 勝率 "+V.win_rate+"%":""}</div></div>`;
+function renderExperiments(){
+  document.getElementById("expCards").innerHTML = EXPS.map((e,i)=>{
+    const m=e.meta;
+    if(e.error){
+      return `<div class="expcard ${i===liveSel?'sel':''} ${e._baseline?'base':''}" data-i="${i}">
+        <div class="exphd"><span class="expcoin">${m.coin}</span><span class="chip ${e._baseline?'':'hi'}">${m.variant}</span></div>
+        <div class="expcat">${m.category}</div>
+        <div class="empty" style="padding:10px 0;font-size:13px">等待資料<br><span style="font-size:11px">${e.error}</span></div></div>`;
+    }
+    const ret=e.return_pct, sig=e.signal;
+    const posTxt = e.position ? (e.position.side==="LONG"?'<span class="s-LONG">持多</span>':'<span class="s-SHORT">持空</span>') : "觀望中";
+    return `<div class="expcard ${i===liveSel?'sel':''} ${e._baseline?'base':''}" data-i="${i}">
+      <div class="exphd"><span class="expcoin">${m.coin}</span><span class="chip ${e._baseline?'':'hi'}">${m.variant}</span></div>
+      <div class="expcat">${m.category}${m.oos_sharpe?` · OOS夏普 ${m.oos_sharpe}`:''}</div>
+      <div class="expeq ${cls(ret)}">${e.equity.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}<span class="u">U</span></div>
+      <div class="expret ${cls(ret)}">${fmtPct(ret,2)}</div>
+      <div class="expsig"><span class="pill ${sig.target}">${sig.target==="FLAT"?"觀望":(sig.target==="LONG"?"做多":"做空")}</span>
+        <span class="expmeta">百分位 ${sig.pct}% · 部位 ${sig.size}×</span></div>
+      <div class="expmeta">${posTxt} · 已平倉 ${e.n_trades} 筆${e.win_rate!=null?" · 勝率 "+e.win_rate+"%":""}</div></div>`;
+  }).join("");
+  document.querySelectorAll(".expcard").forEach(c=>c.onclick=()=>{
+    liveSel=+c.dataset.i; renderExperiments(); renderLiveDetail();});
+  renderLiveDetail();
+}
 
-  const s=V.signal, tmap={FLAT:"觀望 FLAT",LONG:"做多 LONG",SHORT:"做空 SHORT"};
-  document.getElementById("liveSignal").innerHTML=`
-    <div class="sig-item"><span class="tag">即時訊號（${s.candle}）</span><span class="pill ${s.target}">${tmap[s.target]}</span></div>
-    <div class="sig-item"><span class="tag">多空比</span><span class="big">${s.lsr}</span></div>
-    <div class="sig-item"><span class="tag">90天百分位</span><span class="big">${s.pct}%</span></div>
-    <div class="sig-item"><span class="tag">反波動部位</span><span class="big">${s.size}×</span></div>
-    <div class="sig-item"><span class="tag">BTC 現價</span><span class="big">$${s.price.toLocaleString()}</span></div>`;
+function renderLiveDetail(){
+  const V=EXPS[liveSel], m=V.meta;
+  const paramBar = `<div class="parambar">
+    <div class="pi"><span>幣種</span> <b>${m.coin} 永續</b></div>
+    <div class="pi"><span>類別</span> <b>${m.variant}</b></div>
+    <div class="pi"><span>Lookback</span> <b>${m.lookback_days} 天</b></div>
+    <div class="pi"><span>門檻</span> <b>${m.upper_pct*100}/${m.lower_pct*100}</b></div>
+    <div class="pi"><span>持有</span> <b>${m.hold_days} 天</b></div>
+    <div class="pi"><span>槓桿上限</span> <b>≤${m.leverage}×</b></div>
+    ${m.oos_sharpe?`<div class="pi"><span>樣本外夏普</span> <b class="tealtx">${m.oos_sharpe}</b></div>`:''}</div>`;
+  if(V.error){
+    document.getElementById("expDetailHdr").innerHTML=`<h2>${m.coin} · ${m.variant}</h2>${paramBar}
+      <div class="note">尚未開始——${V.error}（需累積足夠歷史後開始，之後每小時自動更新）。</div>`;
+    document.getElementById("livePos").innerHTML='<div class="empty">—</div>';
+    const oc=Chart.getChart(document.getElementById("liveEq")); if(oc)oc.destroy();
+    document.querySelector("#liveTbl tbody").innerHTML='<tr><td colspan="9" class="empty">—</td></tr>';
+    return;
+  }
+  const ret=V.return_pct, s=V.signal;
+  document.getElementById("expDetailHdr").innerHTML=`
+    <div class="hero">
+      <div><div class="meta">目前權益（起始 ${V.start_equity} U · ${V.start_time}）</div>
+        <div class="eq">${V.equity.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})} <span style="font-size:20px;color:var(--mut)">USDT</span></div></div>
+      <div><div class="meta">累積報酬</div><div class="ret ${cls(ret)}">${fmtPct(ret,2)}</div></div>
+      <div><div class="meta">即時訊號（${s.candle}）</div><div><span class="pill ${s.target}">${tmap[s.target]}</span></div></div>
+      <div><div class="meta">多空比 / 百分位 / 部位</div><div style="font-size:17px;font-weight:650">${s.lsr} · ${s.pct}% · ${s.size}×</div></div>
+      <div class="upd"><div class="live-badge"><span class="dot"></span>每小時自動更新</div>
+        <div>最後更新 ${V.updated}</div><div>${m.coin} 現價 ${num(s.price)}</div></div>
+    </div>${paramBar}`;
 
   const p=V.position, pc=document.getElementById("livePos");
-  if(!p){ pc.innerHTML='<div class="empty">目前無持倉 — 等待多空比進入極端區間（≥90% 做空 / ≤10% 做多）。</div>'; }
+  if(!p){ pc.innerHTML='<div class="empty">目前無持倉 — 等待多空比進入極端區間（≥'+(m.upper_pct*100)+'% 做空 / ≤'+(m.lower_pct*100)+'% 做多）。</div>'; }
   else{
-    pc.innerHTML=`<div class="poscard">
-      <div class="row">
+    pc.innerHTML=`<div class="poscard"><div class="row">
         <div><div class="k">方向</div><div class="v s-${p.side}">${p.side==="LONG"?"做多 LONG":"做空 SHORT"}</div></div>
-        <div><div class="k">進場</div><div class="v">${p.entry_time.slice(0,16).replace("T"," ")} @ $${p.entry_px.toLocaleString()}</div></div>
-        <div><div class="k">部位</div><div class="v">${p.notional.toLocaleString()} U · ${p.size_mult}× 槓桿</div></div>
+        <div><div class="k">進場</div><div class="v">${p.entry_time.slice(0,16).replace("T"," ")} @ ${num(p.entry_px)}</div></div>
+        <div><div class="k">部位</div><div class="v">${p.notional.toLocaleString()} U · ${p.size_mult}× (上限 ${m.leverage}×)</div></div>
         <div><div class="k">目前浮動盈虧</div><div class="v ${cls(p.unrealized)}">${p.unrealized>=0?"+":""}${p.unrealized} U (${fmtPct(p.unrealized_pct,2)})</div></div>
+      </div><div class="row">
+        <div><div class="k">排定平倉（${m.hold_days}天時間出場）</div><div class="v">${p.scheduled_exit_candle.slice(0,16).replace("T"," ")} · 還有 ${p.hours_left}h</div></div>
+        <div><div class="k">參考風險價位（不觸發平倉）</div><div class="v">−10% @ ${num(p.ref_levels.minus10)} · −20% @ ${num(p.ref_levels.minus20)}</div></div>
       </div>
-      <div class="row">
-        <div><div class="k">排定平倉（3天時間出場）</div><div class="v">${p.scheduled_exit_candle.slice(0,16).replace("T"," ")} UTC+8 · 還有 ${p.hours_left}h</div></div>
-        <div><div class="k">參考風險價位（不觸發平倉）</div><div class="v">−10% @ $${p.ref_levels.minus10.toLocaleString()} · −20% @ $${p.ref_levels.minus20.toLocaleString()}</div></div>
-      </div>
-      <div class="note">⚠️ 本策略<b>不設停損／停利</b>——進場後持有 3 天強制平倉。上方「參考風險價位」只是告訴你價格走到哪帳戶會浮虧 −10%／−20%，<b>不是停損單、不會自動平倉</b>。</div>
-    </div>`;
+      <div class="note">⚠️ <b>不設停損／停利</b>——持有 ${m.hold_days} 天強制平倉。槓桿上限 ${m.leverage}× 是這檔的<b>建議安全值</b>（避免爆倉）。參考風險價位僅供參考，不會自動平倉。</div></div>`;
   }
 
   const ec=V.equity_curve;
+  const oc=Chart.getChart(document.getElementById("liveEq")); if(oc)oc.destroy();
   if(ec && ec.length>1){
     new Chart(document.getElementById("liveEq"),{type:"line",
       data:{labels:ec.map(r=>r.t.slice(5,16).replace("T"," ")),
@@ -381,11 +734,11 @@ function renderLive(V){
   }
 
   const tb=document.querySelector("#liveTbl tbody");
-  tb.innerHTML = V.trades.length ? V.trades.map(t=>`<tr>
+  tb.innerHTML = V.trades && V.trades.length ? V.trades.map(t=>`<tr>
     <td class="muted">${t.entry_time.slice(0,16).replace("T"," ")}</td>
     <td class="muted">${t.exit_time.slice(0,16).replace("T"," ")}</td>
     <td class="s-${t.side}">${t.side==="LONG"?"多":"空"}</td>
-    <td>${t.entry_px.toLocaleString()}</td><td>${t.exit_px.toLocaleString()}</td>
+    <td>${num(t.entry_px)}</td><td>${num(t.exit_px)}</td>
     <td class="muted">${t.size_mult}×</td>
     <td class="${cls(t.gross_return)}">${fmtPct(t.gross_return,2)}</td>
     <td class="${cls(t.pnl)}"><b>${t.pnl>=0?"+":""}${t.pnl}</b></td>
@@ -401,6 +754,8 @@ function loadScript(src){return new Promise((ok,err)=>{const s=document.createEl
   const v = "?t=" + Date.now();
   try { await loadScript("data.js"+v); } catch(e){ console.error("data.js failed", e); }
   try { await loadScript("live.js"+v); } catch(e){ /* live.js optional before first tick */ }
+  try { await loadScript("live_experiments.js"+v); } catch(e){ /* experiments optional before first tick */ }
+  try { await loadScript("research.js"+v); } catch(e){ /* research tabs optional */ }
   initDashboard();
 })();
 </script>

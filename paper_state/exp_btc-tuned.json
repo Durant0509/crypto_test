@@ -1,0 +1,17 @@
+{
+  "start_time": "2026-07-16T16:19:51.037252+00:00",
+  "start_equity": 1000.0,
+  "equity": 1000.0,
+  "realized_pnl": 0.0,
+  "last_acted_candle": null,
+  "position": null,
+  "trades": [],
+  "equity_curve": [
+    {
+      "t": "2026-07-16T15:00:00+00:00",
+      "eq": 1000.0,
+      "px": 64465.91
+    }
+  ],
+  "halted": false
+}

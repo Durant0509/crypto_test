@@ -42,6 +42,20 @@ def _now_hour() -> pd.Timestamp:
     return pd.Timestamp.now(tz="UTC").floor("1h")
 
 
+def _px(x: float) -> float:
+    """Round a price to ~6 significant figures. Critical for sub-dollar coins:
+    a flat round(x, 1) turns DOGE $0.0734 into $0.1 (a ~36% P&L error). Adaptive
+    precision keeps ADA/DOGE exact while staying tidy for BTC."""
+    ax = abs(x)
+    if ax >= 1000:
+        return round(x, 2)
+    if ax >= 1:
+        return round(x, 4)
+    if ax >= 0.01:
+        return round(x, 6)
+    return round(x, 8)
+
+
 def fmt8(ts) -> str:
     """Display a timestamp as UTC+8 (Taipei) wall clock 'YYYY-MM-DD HH:MM'.
 
@@ -54,13 +68,13 @@ def fmt8(ts) -> str:
     return (t.tz_convert("UTC").tz_localize(None) + pd.Timedelta(hours=8)).strftime("%Y-%m-%d %H:%M")
 
 
-def _load_ledger() -> dict:
-    if LEDGER.exists():
-        return json.loads(LEDGER.read_text())
+def _load_ledger(ledger_path: Path = LEDGER, start_equity: float = START_EQUITY) -> dict:
+    if ledger_path.exists():
+        return json.loads(ledger_path.read_text())
     return {
         "start_time": pd.Timestamp.now(tz="UTC").isoformat(),
-        "start_equity": START_EQUITY,
-        "equity": START_EQUITY,
+        "start_equity": start_equity,
+        "equity": start_equity,
         "realized_pnl": 0.0,
         "last_acted_candle": None,
         "position": None,
@@ -70,9 +84,9 @@ def _load_ledger() -> dict:
     }
 
 
-def _save_ledger(led: dict) -> None:
-    LEDGER.parent.mkdir(parents=True, exist_ok=True)
-    LEDGER.write_text(json.dumps(led, indent=2, default=str))
+def _save_ledger(led: dict, ledger_path: Path = LEDGER) -> None:
+    ledger_path.parent.mkdir(parents=True, exist_ok=True)
+    ledger_path.write_text(json.dumps(led, indent=2, default=str))
 
 
 def _ref_levels(side: str, entry_px: float, size_mult: float) -> dict:
@@ -81,14 +95,23 @@ def _ref_levels(side: str, entry_px: float, size_mult: float) -> dict:
     def px_at(loss):  # loss as positive fraction of equity slice
         move = loss / size_mult
         return entry_px * (1 - move) if side == "LONG" else entry_px * (1 + move)
-    return {"minus10": round(px_at(0.10), 1), "minus20": round(px_at(0.20), 1)}
+    return {"minus10": _px(px_at(0.10)), "minus20": _px(px_at(0.20))}
 
 
 def tick(params: Params = Params(), symbol: str = SYMBOL,
          start_equity: float = START_EQUITY, max_notional: float = MAX_NOTIONAL,
-         costs: Costs = Costs()) -> dict:
+         costs: Costs = Costs(),
+         ledger_path: Path = LEDGER, store_path: Path = STORE,
+         write_js: bool = True, live_js_path: Path = LIVE_JS, live_var: str = "LIVE",
+         return_payload: bool = False):
+    """Run one forward paper-trading tick.
+
+    Defaults reproduce the ORIGINAL single-BTC bot exactly (ledger.json + live.js
+    window.LIVE). Multi-experiment callers pass their own ledger_path/store_path,
+    set write_js=False, and use return_payload=True to collect the display dict.
+    """
     client = BinanceFutures()                       # public data only, no keys
-    df = update_store(client, symbol, STORE)
+    df = update_store(client, symbol, store_path)
     closed = df[df.index < _now_hour()]
     if len(closed) < params.lookback_hours:
         raise SystemExit(f"not enough history ({len(closed)}/{params.lookback_hours}h)")
@@ -102,7 +125,7 @@ def tick(params: Params = Params(), symbol: str = SYMBOL,
     price = client.mark_price(symbol)               # live fill price
     cps = costs.per_side
 
-    led = _load_ledger()
+    led = _load_ledger(ledger_path, start_equity)
     pos = led["position"]
     equity = led["equity"]
     acted = False
@@ -121,7 +144,7 @@ def tick(params: Params = Params(), symbol: str = SYMBOL,
             led["realized_pnl"] += pnl
             led["trades"].append({
                 "entry_time": pos["entry_time"], "exit_time": pd.Timestamp.now(tz="UTC").isoformat(),
-                "side": pos["side"], "entry_px": pos["entry_px"], "exit_px": round(price, 1),
+                "side": pos["side"], "entry_px": pos["entry_px"], "exit_px": _px(price),
                 "qty": pos["qty"], "notional": pos["notional"], "size_mult": pos["size_mult"],
                 "gross_return": round(gross * 100, 3), "pnl": round(pnl, 2),
                 "equity_after": round(equity, 2), "win": pnl > 0,
@@ -146,7 +169,7 @@ def tick(params: Params = Params(), symbol: str = SYMBOL,
         exit_candle = (candle_ts + pd.Timedelta(hours=params.hold_hours)).isoformat()
         pos = {
             "side": tname, "entry_time": pd.Timestamp.now(tz="UTC").isoformat(),
-            "entry_candle": candle_iso, "entry_px": round(price, 1),
+            "entry_candle": candle_iso, "entry_px": _px(price),
             "qty": round(qty, 6), "notional": round(notional, 2), "size_mult": round(size_mult, 2),
             "scheduled_exit_candle": exit_candle,
             "ref_levels": _ref_levels(tname, price, size_mult),
@@ -157,16 +180,19 @@ def tick(params: Params = Params(), symbol: str = SYMBOL,
 
     # --- snapshot equity every tick ----------------------------------------
     eq_now = round(led["equity"] + unrealized, 2)
-    led["equity_curve"].append({"t": candle_iso, "eq": eq_now, "px": round(price, 1)})
+    led["equity_curve"].append({"t": candle_iso, "eq": eq_now, "px": _px(price)})
     # keep it bounded (a year of hourly points is plenty)
     led["equity_curve"] = led["equity_curve"][-24 * 400:]
 
-    _save_ledger(led)
-    _write_live_js(led, sig, bar, candle_ts, price, unrealized)
-    return led
+    _save_ledger(led, ledger_path)
+    payload = _build_payload(led, sig, bar, candle_ts, price, unrealized)
+    if write_js:
+        live_js_path.parent.mkdir(parents=True, exist_ok=True)
+        live_js_path.write_text(f"window.{live_var} = " + json.dumps(payload, default=str) + ";\n")
+    return (led, payload) if return_payload else led
 
 
-def _write_live_js(led, sig, bar, candle_ts, price, unrealized) -> None:
+def _build_payload(led, sig, bar, candle_ts, price, unrealized) -> dict:
     p = led["position"]
     now = pd.Timestamp.now(tz="UTC")
     pos_out = None
@@ -203,7 +229,7 @@ def _write_live_js(led, sig, bar, candle_ts, price, unrealized) -> None:
             "pct": round(float(bar["pct"]) * 100, 1),
             "size": round(float(bar["size"]), 2),
             "target": {LONG: "LONG", SHORT: "SHORT", FLAT: "FLAT"}[tgt],
-            "price": round(price, 1),
+            "price": _px(price),
         },
         "position": pos_out,
         "halted": led["halted"],
@@ -212,5 +238,4 @@ def _write_live_js(led, sig, bar, candle_ts, price, unrealized) -> None:
         "trades": trades_out,                    # most recent first, UTC+8
         "equity_curve": equity_out,
     }
-    LIVE_JS.parent.mkdir(parents=True, exist_ok=True)
-    LIVE_JS.write_text("window.LIVE = " + json.dumps(payload, default=str) + ";\n")
+    return payload

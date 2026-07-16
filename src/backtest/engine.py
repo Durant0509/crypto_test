@@ -60,6 +60,8 @@ def run(df: pd.DataFrame, cfg: BacktestConfig = BacktestConfig()) -> BacktestRes
     win = sig.loc[mask]
 
     opens = win["open"].to_numpy(dtype=float)
+    highs = win["high"].to_numpy(dtype=float)
+    lows = win["low"].to_numpy(dtype=float)
     closes = win["close"].to_numpy(dtype=float)
     targets = win["target"].to_numpy(dtype=int)
     sizes = win["size"].to_numpy(dtype=float)
@@ -78,24 +80,31 @@ def run(df: pd.DataFrame, cfg: BacktestConfig = BacktestConfig()) -> BacktestRes
     entry_i = -1
     entry_px = 0.0
     notional = 0.0
+    # worst / best UNLEVERED price excursion against/with the position over the
+    # hold (mae<=0, mfe>=0). Used by the leverage-safety analysis: a position at
+    # leverage L is liquidated when the adverse price move reaches ~1/L.
+    mae = 0.0
+    mfe = 0.0
+
+    def _record_trade(exit_i, exit_px, cost):
+        gross = pos_side * (exit_px / entry_px - 1.0)
+        pnl = notional * gross - cost
+        trades.append({
+            "entry_time": idx[entry_i], "exit_time": idx[exit_i],
+            "side": "LONG" if pos_side == 1 else "SHORT",
+            "entry_px": entry_px, "exit_px": exit_px,
+            "size_mult": notional / base, "notional": notional,
+            "gross_return": gross, "pnl": pnl, "win": pnl > 0,
+            "hold_hours": exit_i - entry_i,
+            "mae": mae, "mfe": mfe,        # worst / best price excursion in hold
+        })
+        return pnl
 
     for i in range(1, n):
         # ----- exit: 3-day time stop, executed at this bar's open ------------
         if pos_side != 0 and (i - entry_i) >= hold:
-            exit_px = opens[i]
-            gross = pos_side * (exit_px / entry_px - 1.0)
-            cost = notional * cps * 2.0            # entry + exit legs
-            pnl = notional * gross - cost
-            realized += pnl
-            trades.append({
-                "entry_time": idx[entry_i], "exit_time": idx[i],
-                "side": "LONG" if pos_side == 1 else "SHORT",
-                "entry_px": entry_px, "exit_px": exit_px,
-                "size_mult": notional / base, "notional": notional,
-                "gross_return": gross, "pnl": pnl, "win": pnl > 0,
-                "hold_hours": i - entry_i,
-            })
-            pos_side, entry_i, entry_px, notional = 0, -1, 0.0, 0.0
+            realized += _record_trade(i, opens[i], notional * cps * 2.0)  # 2 legs
+            pos_side, entry_i, entry_px, notional, mae, mfe = 0, -1, 0.0, 0.0, 0.0, 0.0
 
         # ----- entry: act on the previous bar's signal, at this bar's open ---
         if pos_side == 0 and targets[i - 1] != FLAT:
@@ -105,8 +114,19 @@ def run(df: pd.DataFrame, cfg: BacktestConfig = BacktestConfig()) -> BacktestRes
                 entry_i = i
                 entry_px = opens[i]
                 notional = base * mult
+                mae = mfe = 0.0
                 # entry cost realised immediately (felt in equity right away)
                 realized -= notional * cps
+
+        # ----- track intra-hold adverse/favorable excursion (high/low) -------
+        if pos_side != 0:
+            hi_ex = pos_side * (highs[i] / entry_px - 1.0)
+            lo_ex = pos_side * (lows[i] / entry_px - 1.0)
+            worst, best = min(hi_ex, lo_ex), max(hi_ex, lo_ex)
+            if worst < mae:
+                mae = worst
+            if best > mfe:
+                mfe = best
 
         # ----- mark-to-market equity ----------------------------------------
         if pos_side != 0:
@@ -117,19 +137,7 @@ def run(df: pd.DataFrame, cfg: BacktestConfig = BacktestConfig()) -> BacktestRes
 
     # close any position still open at the end, at the last close
     if pos_side != 0:
-        exit_px = closes[-1]
-        gross = pos_side * (exit_px / entry_px - 1.0)
-        cost = notional * cps            # exit leg only (entry already charged)
-        pnl = notional * gross - cost
-        realized += pnl
-        trades.append({
-            "entry_time": idx[entry_i], "exit_time": idx[-1],
-            "side": "LONG" if pos_side == 1 else "SHORT",
-            "entry_px": entry_px, "exit_px": exit_px,
-            "size_mult": notional / base, "notional": notional,
-            "gross_return": gross, "pnl": pnl, "win": pnl > 0,
-            "hold_hours": (n - 1) - entry_i,
-        })
+        realized += _record_trade(n - 1, closes[-1], notional * cps)  # exit leg only
         equity[-1] = base + realized
 
     trades_df = pd.DataFrame(trades)

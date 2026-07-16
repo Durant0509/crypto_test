@@ -1,67 +1,95 @@
 # Research notes — Retail L/S Reversion
 
-All runs use the shared backtest engine, identical baseline params
+All runs use the shared backtest engine, baseline params unless noted
 (90d lookback, 90/10 percentile, 3-day hold, no stop, inverse-vol 0.25-3x,
 fees 0.04% + slip 0.02%/side), 2022-01-01 .. 2026-06-30. Reproduce with
-`research/multi_coin.py` and `research/param_sweep.py`. **All in-sample.**
+`research/multi_coin.py`, `research/param_sweep.py`, `research/leverage_safety.py`,
+then `scripts/build_research.py` to refresh the dashboard. **All in-sample.**
 
-## 1. Other coins (same params, sorted by Sharpe)
+## 1. Coin universe (14 coins)
 
-| Symbol | Sharpe | Total | Buy&Hold | MaxDD | Trades | Win% | Corr BTC |
-|---|---|---|---|---|---|---|---|
-| BTCUSDT | **1.31** | +257% | +28% | -24.5% | 259 | 52.5% | -0.08 |
-| ADAUSDT | 1.10 | +214% | -89% | -27.6% | 266 | 53.0% | +0.23 |
-| ETHUSDT | 0.80 | +154% | -57% | -30.9% | 277 | 52.0% | -0.02 |
-| DOGEUSDT | 0.76 | +157% | -58% | -41.6% | 275 | 47.3% | +0.05 |
-| SOLUSDT | 0.60 | +99% | -57% | -35.3% | 248 | 50.4% | -0.04 |
-| BNBUSDT | 0.05 | +8% | +7% | -52.6% | 254 | 52.0% | -0.05 |
-| XRPUSDT | -0.03 | -9% | +25% | **-116%** | 260 | 48.8% | -0.31 |
+Baseline (BTC params) Sharpe: BTC **1.31** > ADA 1.10 > AVAX 0.92 > ETH 0.80 >
+DOGE 0.76 > SOL 0.60 > LINK 0.48 > SUI 0.33 > BNB 0.05 > XRP −0.03 > TRX −0.05 >
+LTC −0.07 > DOT −0.48 > 1000PEPE −0.64.
+
+Tuned (each coin's own best lookback) Sharpe: **ADA 1.61 (45d)** ≈ **BTC 1.55 (45d)**
+> DOGE 1.18 (30d) > AVAX 1.03 (60d) > ETH/SUI 0.84 > SOL 0.74 > rest < 0.6.
 
 **Findings**
-- **BTC has the best Sharpe**, not the meme coins — this *contradicts* the source
-  report's "strongest on DOGE/ADA" claim (at least with BTC-tuned params, in-sample).
-- The strategy still **crushes buy&hold on alts** (ADA B&H -89% vs strategy +214%)
-  — its value is being roughly market-neutral, not beating B&H per se.
-- **XRP is a blow-up**: -116% drawdown = on a leveraged account it would have been
-  liquidated. No stop + leverage + an idiosyncratic squeeze (SEC-case pumps) = ruin.
-- BNB (exchange token, less retail-driven) is flat — consistent with "edge needs a
-  crowded retail counterparty."
-- Takeaway: run a **coin universe filter** (BTC/ADA/ETH), avoid XRP-like names, or
-  go cross-sectional (see ideas).
+- **BTC + ADA are the only two solid, leverage-survivable names** (tuned Sharpe ~1.5+,
+  MaxDD −18/−21%, worst per-trade adverse excursion −13/−24%). ADA tuned slightly
+  *beats* BTC — consistent with the report's "retail-heavy coins" thesis; DOGE tuned
+  is decent (1.18) but higher DD/MAE.
+- **Most alts are ruin coins on leverage**: TRX −117%, DOT −78%, XRP −106%, LTC −34%,
+  1000PEPE −58% worst adverse excursion → liquidated at low leverage. No-stop +
+  idiosyncratic squeeze = blow-up. BNB (exchange token, less retail) is flat.
+- Takeaway: run a **coin whitelist (BTC/ADA, maybe small DOGE)**, avoid the rest, or
+  go cross-sectional market-neutral to diversify the single-coin blow-ups.
 
 ## 2. Parameter & timeframe sensitivity (BTC)
 
-- **Lookback**: peaks ~45-60d (Sharpe 1.55 / 1.45) vs 90d baseline 1.31; degrades >120d.
-  90d is a *conservative* choice (likely from walk-forward); 45-60d looks better in-sample.
-- **Thresholds**: 90/10 (1.31) is the sweet spot; 80/20 trades more for slightly less
-  Sharpe; 95/5+ too sparse.
-- **Hold**: 3 days is the peak (1.31). Longer holds don't just lower Sharpe — MaxDD
-  explodes (5d -62%, 7d -66%): with no stop, time in market = tail risk.
-- **Vol targeting helps**: fixed-1x Sharpe 1.20 → vol-target 1.29-1.33. Higher target =
-  more return + more DD; Sharpe fairly flat 0.015-0.04 (robust).
-- **Parameter plateau**: the lookback∈[45,90] × hold∈[2,4] block is a stable high-Sharpe
-  region (not a lone spike) — good sign it's not overfit noise.
-- **Timeframe**: 1h/2h/4h all ~1.3 Sharpe, but **4h has much lower MaxDD (-15.8%) and
-  higher win rate (56%)** — same edge, smoother ride. 2h/4h look like a better risk profile.
+- **Best in-sample config = lookback 45d** (else unchanged): Sharpe **1.55** (vs 1.31),
+  total **+312%** (vs +257%), MaxDD **−18.2%** (vs −24.5%), win 55.2%, worst MAE
+  **−13.0%** (vs −16.4%). Improves return, drawdown, win rate AND leverage safety at
+  once. **But it's in-sample** — 90d was the report's conservative walk-forward pick;
+  45d must pass walk-forward before trusting.
+- **Thresholds**: 90/10 is the sweet spot; 80/20 trades more (~4.5d/trade) for slightly
+  less Sharpe; 95/5+ too sparse (8–12d/trade).
+- **Hold**: 3 days is the peak. Longer holds explode MaxDD (5d −62%, 7d −66%) — with no
+  stop, time in market = tail risk.
+- **Vol targeting** helps: fixed-1x Sharpe 1.20 → vol-target 1.29–1.33. Higher target =
+  more return + more DD; Sharpe fairly flat (robust).
+- **Parameter plateau**: lookback[45,90] × hold[2,4] is a stable high-Sharpe block, not
+  a lone spike — good sign it's not overfit noise.
+- **Timeframe**: 1h/2h/4h all ~1.3 Sharpe, but **4h has much lower MaxDD (−15.8%) and
+  higher win (56%)** — same edge, smoother ride.
 
-## 3. Ideas / extensions
+## 3. Leverage safety (NO stop-loss → leverage is the only guardrail)
 
-1. **Cross-sectional market-neutral basket** (highest priority). Each hour, rank the
-   L/S-ratio percentile across ~10 liquid perps; short the most crowded-long, long the
-   most crowded-short, dollar-neutral. Diversifies away single-coin blow-ups (XRP),
-   removes directional beta, and is the "complementary strategy" the report hinted at.
-2. **Catastrophic-only circuit breaker**, not a tight stop. A wide stop (~ -20% adverse,
-   or a same-bar -15% crash guard) to prevent XRP-style ruin without the +74%→-20% death
-   a 3-5% stop causes. Worth a sweep to find the stop level that cuts tail risk with
-   minimal Sharpe cost.
-3. **Universe / coin filter**: only trade names with a persistent retail edge
-   (BTC/ADA/ETH), skip institutional (BNB) and idiosyncratic (XRP) coins.
-4. **Adopt 4h timeframe** (or 1h+4h ensemble): from the sweep, similar Sharpe, ~35% less
-   drawdown, higher win rate.
-5. **Signal confirmation / blend**: combine the account L/S ratio with the other columns
-   already in the metrics dumps — top-trader position ratio, taker buy/sell volume — plus
-   funding rate & OI. Enter only when retail is crowded *and* smart-money diverges.
-6. **Exit on normalization** instead of fixed 3 days: close when the percentile returns to
-   neutral (say 40-60%). Frees capital when the reversion completes early; test vs fixed time.
-7. **Funding-rate overlay**: over a 3-day perp hold, funding P&L is material — tilt toward
-   positions where funding pays you, size down where it bleeds.
+Per-trade MAE = worst intra-hold price move against the position (from high/low),
+unlevered. Isolated-margin liquidation at leverage L when adverse ≈ 1/L − mmr.
+
+- **BTC**: worst single-trade MAE **−16.4%**, median −2.0%. Zero liquidations up to
+  **5×**; 7× loses 1 trade, 10× loses 3, 20× loses 52 (ruin). Theoretical max 5.9×.
+  **Recommended ≤ 3×** (buffered — history isn't the future ceiling; no-stop house cap).
+- By coin: BTC safe ~5× / rec 3×; ETH/ADA/DOGE/BNB ~3× / rec 2×; SOL 2× / rec 1×;
+  **XRP liquidates even at 1×** (−106% MAE) — avoid at any leverage.
+- The vol-sizing multiplier (0.25–3×) changes capital deployed, not the per-position
+  liquidation price. MAE from hourly high/low can understate a real intra-bar spike.
+
+## 4. Walk-forward validation (`research/walk_forward.py`, per-coin, independent)
+
+14 rolling windows (365d train / 90d test / 90d step). On each train window the best
+lookback (30/45/60/90d) is picked and applied to the unseen test window. Coins run
+INDEPENDENTLY (no portfolio mixing).
+
+| Coin | OOS fixed-45d | OOS fixed-90d | OOS adaptive | % windows + |
+|---|---|---|---|---|
+| BTC | **1.58** | 1.44 | 1.46 | 79% |
+| ADA | **1.68** | 1.14 | 1.41 | 86% |
+| DOGE | **1.15** | 0.52 | 0.93 | 79% |
+| ETH | 0.50 | **0.73** | 0.49 | 64% |
+
+**Findings**
+- **45d lookback holds up out-of-sample** for BTC/ADA/DOGE — the in-sample win is NOT
+  overfit (BTC OOS 1.58 even beats its in-sample 1.55). Train windows independently keep
+  re-picking 45d (BTC 7/14, ADA 10/14) — a real parameter plateau.
+- **ETH is the exception**: 45d (0.50) < 90d (0.73) OOS, weakest edge, only 64% windows
+  positive. ADA is the most consistent (86%).
+- **Fixed 45d beats per-window adaptive re-optimization** — constant re-tuning adds noise;
+  a stable parameter is more robust. Don't over-optimize.
+- Whitelist: BTC + ADA strong, DOGE ok, ETH marginal. Candidate: move live config to 45d.
+
+## 5. Ideas / extensions (ranked — see dashboard 未來方向 tab)
+
+1. Cross-sectional market-neutral basket (diversify single-coin blow-ups).
+2. Coin whitelist filter (BTC/ADA/small DOGE; skip BNB + ruin coins).
+3. Shorten lookback to 45d (in-sample win; needs walk-forward).
+4. Catastrophic-only hard stop (~−20%), not a tight stop.
+5. Adopt 2h/4h timeframe (or 1h+4h ensemble) for lower drawdown.
+6. Multi-factor blend: top-trader ratio, taker ratio, OI (already in metrics dumps) +
+   funding + on-chain SOPR/NUPL — enter when retail crowded AND smart-money diverges.
+7. Exit on normalization (percentile back to 40–60%) instead of fixed 3 days.
+8. ADX regime switch — only fade in ranging markets (ADX<25).
+9. ML meta-labeling filter (predict "will this reversion succeed?").
+10. Robustness suite: walk-forward + Monte Carlo + IC/IR before trusting any change.

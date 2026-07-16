@@ -37,7 +37,10 @@ def summary(res: BacktestResult, price: pd.Series) -> dict:
 
     total_ret = float(eq.iloc[-1] / base - 1.0)
     years = (eq.index[-1] - eq.index[0]).days / 365.25
-    cagr = (1.0 + total_ret) ** (1 / years) - 1.0 if years > 0 else float("nan")
+    # fixed-notional / no-compounding equity can go below zero on a blow-up
+    # (no stop), which makes (1+total_ret)^(1/y) complex — guard it.
+    cagr = ((1.0 + total_ret) ** (1 / years) - 1.0
+            if years > 0 and total_ret > -1.0 else float("nan"))
 
     # buy & hold over the same trading window
     px = price.loc[(price.index >= eq.index[0]) & (price.index <= eq.index[-1])]

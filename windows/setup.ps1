@@ -66,8 +66,8 @@ git config --global --unset-all credential.helper 2>$null
 git config --global credential.helper store
 "https://Durant0509:$pat@github.com`n" | Out-File -Encoding ascii -NoNewline "$env:USERPROFILE\.git-credentials"
 
-# --- first tick (bootstraps ~3 months of history on first run) ---
-Write-Host "Running one test tick (first run downloads some history, ~30-60s)..." -ForegroundColor Cyan
+# --- first tick (bootstraps ~3 months of history for BTC + ADA + DOGE on first run) ---
+Write-Host "Running one test tick (first run downloads history for 4 experiments, ~2-4 min)..." -ForegroundColor Cyan
 & "$repo\windows\paper_tick.ps1"
 Write-Host "---- recent log ----" -ForegroundColor DarkGray
 Get-Content (Join-Path $repo "data\paper_tick.log") -Tail 10
