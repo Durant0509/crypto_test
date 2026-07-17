@@ -331,6 +331,93 @@ insight — the bumpy fixed-hold surface was a clock-exit artifact). Timeframe s
 0.74 / MaxDD -59.7%. **Below the 1.2 own-merit bar. Rejected as a standalone BTC
 sleeve.** Keep the Donchian-trailing-exit + wf.py machinery for future factors.
 
+## 6j. L/S + momentum two-sleeve combo TESTED & REJECTED (2026-07, `research/combo_sleeves.py`)
+
+Thesis: L/S earns in the 2022 bear (+42.7%), momentum in trend years (2023 +148%,
+2026 +39%) → maybe anti-correlated → combo Sharpe > either alone, resurrecting
+momentum as a diversifier. Full-period incl. 2022, two independent equal-weight
+accounts:
+
+| combo | Sharpe | MaxDD |
+|---|---|---|
+| L/S only | **1.55** | -14.8% |
+| momentum only | 0.74 | -59.1% |
+| 50/50 equal-weight | 1.29 | -23.5% |
+| inverse-vol (51/49) | 1.30 | -23.0% |
+
+Verdict: **REJECTED.** Sleeve-to-sleeve daily-return corr = **+0.54 (positive, not
+the hypothesized negative)**. The "complementary" story holds ONLY in 2022 (L/S
++42.7 vs mom -59.1); in 2023-2026 both sleeves move TOGETHER (both big in 2023,
+both weak in 2025). Net corr is positive, so adding momentum just DILUTES L/S's
+1.55 and injects momentum's -59% drawdown — worse on both axes. Momentum is dead
+as standalone AND as diversifier. Lesson: "which years each earns" ≠ correlation;
+must compute the actual return-series corr before assuming complementarity.
+
+## 6k. Monte-Carlo trade-shuffle robustness (2026-07, `research/monte_carlo.py`)
+
+No-stop + ~52% win-rate → the historical MaxDD is ONE lucky trade ORDER. Shuffle
+the per-trade returns 1000x, rebuild the equity path, look at the DD distribution:
+
+| coin | histDD | median | p95(bad) | p99(worse) | worst | P(ruin>50%) |
+|---|---|---|---|---|---|---|
+| BTC | -14.2% | -18.1% | -35.8% | -47.9% | -69.7% | 0.8% |
+| ADA | -12.6% | -19.0% | -40.2% | -52.3% | -81.5% | 1.4% |
+| DOGE | -36.2% | -29.4% | -58.0% | -80.7% | -112.3% | 9.2% |
+
+Findings:
+- **Historical MaxDD is optimistic by 2-3x**: BTC's -14.2% is a friendly ordering;
+  a different sequence of the SAME trades reaches -36% (p95) / -48% (p99).
+- **Leverage caps must drop** vs the single-MAE-derived ones (BTC ≤3x was too
+  loose). Path-risk-safe: **BTC ≤2x (p99 -48%), ADA ≤1.5x (p99 -52%), DOGE no
+  leverage / needs a stop (p99 -81%, 9.2% ruin).**
+- **Re-values the catastrophic stop (§6c)**: it looked cosmetic (never triggers on
+  BTC's historical path) but MC shows a future ordering can reach -36~48% — the
+  -25% stop is real tail insurance, not decoration. §6c + §6k together change the
+  verdict: keep the -25% catastrophic stop on BTC/ADA.
+
+## 6l. Funding-as-cost on perp holds TESTED — negligible (2026-07, `research/funding_cost.py`)
+
+Realism gap: backtest omitted funding on ~3d perp holds. Funding = 8h rate (dump
+stores it ffilled hourly; settle only on 00/08/16 UTC boundaries a position spans).
+Long pays positive funding (84.7% of the time), short receives. Full period:
+
+| coin | Sharpe base | Sharpe +funding | avg fund/trade |
+|---|---|---|---|
+| BTC | 1.55 | 1.56 | -0.05 U |
+| ADA | 1.61 | 1.60 | +0.04 U |
+| DOGE | 1.07 | 1.07 | ~0 U |
+
+Verdict: **negligible (±0.01).** Structural reason: the strategy is ~50% long /
+50% short, so the funding paid on longs is offset by funding received on shorts —
+a market-neutral fade book is naturally IMMUNE to funding drag (unlike a
+directional/always-long momentum book). Confirms the backtest was NOT inflated by
+omitting funding. Pairs with §6k: MC shows we UNDER-estimated tail risk; funding
+shows we did NOT over-estimate return. Adopted numbers (1.55/1.60/1.07) stand.
+
+## 6m. Price-condition exit for L/S TESTED & REJECTED (2026-07, `research/ls_price_exit.py`)
+
+Fed this round's validated "condition-exit > fixed-clock" mechanic back to L/S.
+L/S is mean-reversion so the price exit is the OPPOSITE of momentum's Donchian:
+LONG exits when price rebounds to a prior N-day HIGH (reversion target hit), SHORT
+mirror; also tested revert-to-M-day-MA. Full period incl. 2022:
+
+| exit | BTC | ADA | DOGE |
+|---|---|---|---|
+| fixed 3d (current) | **1.55** | **1.61** | **1.07** |
+| normalize | 1.57 | 1.58 | 0.72 |
+| rebound-to-3d-high | 0.97 | 1.17 | 0.74 |
+| rebound-to-5d-high | 0.95 | 0.99 | 1.02 |
+| revert-to-14d-MA | 1.04 | 0.67 | 0.32 |
+
+Verdict: **REJECTED — fixed 3d wins across all coins.** Price-condition exits also
+blow out MaxDD (BTC rebound -53~57% vs fixed 3d -18%). LESSON: exit mechanics
+aren't "better/worse" in the abstract — they must MATCH the strategy's time
+structure. Momentum trends have no fixed lifespan → ride with a condition exit.
+L/S sentiment reversion is fast with a fixed rhythm (3d is the sweet spot) → a
+price-event exit fires too late/too randomly, holds past the reversion, and gives
+back gains. Keep L/S on the fixed 3d clock. The condition-exit win does NOT
+transfer; direction/structure matters.
+
 ## 7. Ideas / extensions (ranked — see dashboard 未來方向 tab)
 
 1. Cross-sectional market-neutral basket (diversify single-coin blow-ups).
