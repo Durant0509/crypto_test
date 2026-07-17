@@ -51,15 +51,21 @@ def _params(exit_mode: str) -> Params:
     )
 
 
-# name, coin, symbol, out-of-sample Sharpe, recommended max leverage, exit mode.
+# name, coin, symbol, backtest Sharpe, recommended max leverage, exit mode.
 # A/B: the same coin runs BOTH fixed-3d and normalize-exit side by side (BTC/ADA).
 # DOGE only fixed-3d (normalize was rejected for it out-of-sample).
+#
+# Sharpe reported as {oos23, full22} (research/wf.py, 2026-07): oos23 = walk-forward
+# test windows (starts 2023, 2022 = warmup); full22 = full-period incl. the 2022
+# bear. The GAP diagnoses regime dependence. The single-number oos_sharpe labels we
+# used before were the oos23 values ALONE, which skipped 2022 and OVERSTATED the
+# normalize-exit edge — full22 is the honest headline. See RESEARCH §6h.
 EXPERIMENTS = [
-    {"name": "ada-tuned",       "coin": "ADA",  "symbol": "ADAUSDT",  "oos_sharpe": 1.68, "leverage": 2, "exit": "time"},
-    {"name": "btc-tuned",       "coin": "BTC",  "symbol": "BTCUSDT",  "oos_sharpe": 1.58, "leverage": 3, "exit": "time"},
-    {"name": "doge-tuned",      "coin": "DOGE", "symbol": "DOGEUSDT", "oos_sharpe": 1.15, "leverage": 2, "exit": "time"},
-    {"name": "ada-tuned-norm",  "coin": "ADA",  "symbol": "ADAUSDT",  "oos_sharpe": 1.82, "leverage": 2, "exit": "normalize"},
-    {"name": "btc-tuned-norm",  "coin": "BTC",  "symbol": "BTCUSDT",  "oos_sharpe": 1.73, "leverage": 3, "exit": "normalize"},
+    {"name": "ada-tuned",       "coin": "ADA",  "symbol": "ADAUSDT",  "oos23": 1.68, "full22": 1.61, "leverage": 2, "exit": "time"},
+    {"name": "btc-tuned",       "coin": "BTC",  "symbol": "BTCUSDT",  "oos23": 1.58, "full22": 1.55, "leverage": 3, "exit": "time"},
+    {"name": "doge-tuned",      "coin": "DOGE", "symbol": "DOGEUSDT", "oos23": 1.15, "full22": 1.07, "leverage": 2, "exit": "time"},
+    {"name": "ada-tuned-norm",  "coin": "ADA",  "symbol": "ADAUSDT",  "oos23": 1.82, "full22": 1.58, "leverage": 2, "exit": "normalize"},
+    {"name": "btc-tuned-norm",  "coin": "BTC",  "symbol": "BTCUSDT",  "oos23": 1.73, "full22": 1.57, "leverage": 3, "exit": "normalize"},
 ]
 
 
@@ -77,7 +83,11 @@ def _meta(exp: dict) -> dict:
         "leverage": exp["leverage"],
         "max_notional": START_EQUITY * exp["leverage"],
         "start_equity": START_EQUITY,
-        "oos_sharpe": exp["oos_sharpe"],
+        # honest headline = full-period incl. 2022; keep oos23 + gap for context.
+        "sharpe_full22": exp["full22"],
+        "sharpe_oos23": exp["oos23"],
+        "sharpe_gap": round(exp["oos23"] - exp["full22"], 2),
+        "oos_sharpe": exp["full22"],     # back-compat: dashboard's headline field
     }
 
 

@@ -1,0 +1,370 @@
+{
+  "BTCUSDT": {
+    "baseline": {
+      "mode": "percentile",
+      "zthr": 0,
+      "oos_sharpe": 1.58,
+      "oos_total_pct": 251.1,
+      "trades": 250
+    },
+    "zscore": [
+      {
+        "mode": "zscore",
+        "zthr": 1.5,
+        "oos_sharpe": 1.5,
+        "oos_total_pct": 221.7,
+        "trades": 174
+      },
+      {
+        "mode": "zscore",
+        "zthr": 1.75,
+        "oos_sharpe": 1.24,
+        "oos_total_pct": 165.8,
+        "trades": 128
+      },
+      {
+        "mode": "zscore",
+        "zthr": 2.0,
+        "oos_sharpe": 0.66,
+        "oos_total_pct": 68.3,
+        "trades": 99
+      },
+      {
+        "mode": "zscore",
+        "zthr": 2.25,
+        "oos_sharpe": 0.25,
+        "oos_total_pct": 20.5,
+        "trades": 70
+      },
+      {
+        "mode": "zscore",
+        "zthr": 2.5,
+        "oos_sharpe": -0.03,
+        "oos_total_pct": -2.0,
+        "trades": 46
+      }
+    ],
+    "zgraded": [
+      {
+        "mode": "zgraded",
+        "zthr": 1.5,
+        "oos_sharpe": 1.38,
+        "oos_total_pct": 233.7,
+        "trades": 174
+      },
+      {
+        "mode": "zgraded",
+        "zthr": 1.75,
+        "oos_sharpe": 1.1,
+        "oos_total_pct": 161.9,
+        "trades": 128
+      },
+      {
+        "mode": "zgraded",
+        "zthr": 2.0,
+        "oos_sharpe": 0.55,
+        "oos_total_pct": 63.0,
+        "trades": 99
+      },
+      {
+        "mode": "zgraded",
+        "zthr": 2.25,
+        "oos_sharpe": 0.2,
+        "oos_total_pct": 17.5,
+        "trades": 70
+      },
+      {
+        "mode": "zgraded",
+        "zthr": 2.5,
+        "oos_sharpe": -0.06,
+        "oos_total_pct": -4.0,
+        "trades": 46
+      }
+    ],
+    "full_baseline": {
+      "mode": "percentile",
+      "zthr": 0,
+      "sharpe": 1.55,
+      "total_pct": 312.0,
+      "maxdd_pct": -18.2,
+      "trades": 306,
+      "win_rate": 55.2
+    }
+  },
+  "ADAUSDT": {
+    "baseline": {
+      "mode": "percentile",
+      "zthr": 0,
+      "oos_sharpe": 1.68,
+      "oos_total_pct": 287.9,
+      "trades": 252
+    },
+    "zscore": [
+      {
+        "mode": "zscore",
+        "zthr": 1.5,
+        "oos_sharpe": 1.73,
+        "oos_total_pct": 253.1,
+        "trades": 203
+      },
+      {
+        "mode": "zscore",
+        "zthr": 1.75,
+        "oos_sharpe": 1.41,
+        "oos_total_pct": 169.4,
+        "trades": 152
+      },
+      {
+        "mode": "zscore",
+        "zthr": 2.0,
+        "oos_sharpe": 1.13,
+        "oos_total_pct": 115.2,
+        "trades": 103
+      },
+      {
+        "mode": "zscore",
+        "zthr": 2.25,
+        "oos_sharpe": 1.36,
+        "oos_total_pct": 113.0,
+        "trades": 67
+      },
+      {
+        "mode": "zscore",
+        "zthr": 2.5,
+        "oos_sharpe": 1.26,
+        "oos_total_pct": 93.6,
+        "trades": 47
+      }
+    ],
+    "zgraded": [
+      {
+        "mode": "zgraded",
+        "zthr": 1.5,
+        "oos_sharpe": 1.79,
+        "oos_total_pct": 305.6,
+        "trades": 203
+      },
+      {
+        "mode": "zgraded",
+        "zthr": 1.75,
+        "oos_sharpe": 1.37,
+        "oos_total_pct": 192.8,
+        "trades": 152
+      },
+      {
+        "mode": "zgraded",
+        "zthr": 2.0,
+        "oos_sharpe": 1.12,
+        "oos_total_pct": 130.5,
+        "trades": 103
+      },
+      {
+        "mode": "zgraded",
+        "zthr": 2.25,
+        "oos_sharpe": 1.33,
+        "oos_total_pct": 123.6,
+        "trades": 67
+      },
+      {
+        "mode": "zgraded",
+        "zthr": 2.5,
+        "oos_sharpe": 1.24,
+        "oos_total_pct": 99.2,
+        "trades": 47
+      }
+    ],
+    "full_baseline": {
+      "mode": "percentile",
+      "zthr": 0,
+      "sharpe": 1.61,
+      "total_pct": 337.7,
+      "maxdd_pct": -21.3,
+      "trades": 306,
+      "win_rate": 53.6
+    }
+  },
+  "DOGEUSDT": {
+    "baseline": {
+      "mode": "percentile",
+      "zthr": 0,
+      "oos_sharpe": 1.15,
+      "oos_total_pct": 191.5,
+      "trades": 248
+    },
+    "zscore": [
+      {
+        "mode": "zscore",
+        "zthr": 1.5,
+        "oos_sharpe": 1.32,
+        "oos_total_pct": 187.3,
+        "trades": 202
+      },
+      {
+        "mode": "zscore",
+        "zthr": 1.75,
+        "oos_sharpe": 1.29,
+        "oos_total_pct": 152.6,
+        "trades": 147
+      },
+      {
+        "mode": "zscore",
+        "zthr": 2.0,
+        "oos_sharpe": 0.52,
+        "oos_total_pct": 51.2,
+        "trades": 109
+      },
+      {
+        "mode": "zscore",
+        "zthr": 2.25,
+        "oos_sharpe": 0.5,
+        "oos_total_pct": 37.6,
+        "trades": 77
+      },
+      {
+        "mode": "zscore",
+        "zthr": 2.5,
+        "oos_sharpe": 0.65,
+        "oos_total_pct": 39.8,
+        "trades": 45
+      }
+    ],
+    "zgraded": [
+      {
+        "mode": "zgraded",
+        "zthr": 1.5,
+        "oos_sharpe": 1.29,
+        "oos_total_pct": 215.8,
+        "trades": 202
+      },
+      {
+        "mode": "zgraded",
+        "zthr": 1.75,
+        "oos_sharpe": 1.35,
+        "oos_total_pct": 186.7,
+        "trades": 147
+      },
+      {
+        "mode": "zgraded",
+        "zthr": 2.0,
+        "oos_sharpe": 0.56,
+        "oos_total_pct": 62.6,
+        "trades": 109
+      },
+      {
+        "mode": "zgraded",
+        "zthr": 2.25,
+        "oos_sharpe": 0.55,
+        "oos_total_pct": 46.5,
+        "trades": 77
+      },
+      {
+        "mode": "zgraded",
+        "zthr": 2.5,
+        "oos_sharpe": 0.72,
+        "oos_total_pct": 48.7,
+        "trades": 45
+      }
+    ],
+    "full_baseline": {
+      "mode": "percentile",
+      "zthr": 0,
+      "sharpe": 1.07,
+      "total_pct": 237.9,
+      "maxdd_pct": -42.6,
+      "trades": 306,
+      "win_rate": 49.7
+    }
+  },
+  "ETHUSDT": {
+    "baseline": {
+      "mode": "percentile",
+      "zthr": 0,
+      "oos_sharpe": 0.5,
+      "oos_total_pct": 83.8,
+      "trades": 248
+    },
+    "zscore": [
+      {
+        "mode": "zscore",
+        "zthr": 1.5,
+        "oos_sharpe": 0.6,
+        "oos_total_pct": 87.0,
+        "trades": 202
+      },
+      {
+        "mode": "zscore",
+        "zthr": 1.75,
+        "oos_sharpe": 0.08,
+        "oos_total_pct": 9.0,
+        "trades": 146
+      },
+      {
+        "mode": "zscore",
+        "zthr": 2.0,
+        "oos_sharpe": -0.14,
+        "oos_total_pct": -14.2,
+        "trades": 102
+      },
+      {
+        "mode": "zscore",
+        "zthr": 2.25,
+        "oos_sharpe": -0.77,
+        "oos_total_pct": -66.9,
+        "trades": 72
+      },
+      {
+        "mode": "zscore",
+        "zthr": 2.5,
+        "oos_sharpe": -0.76,
+        "oos_total_pct": -39.5,
+        "trades": 35
+      }
+    ],
+    "zgraded": [
+      {
+        "mode": "zgraded",
+        "zthr": 1.5,
+        "oos_sharpe": 0.48,
+        "oos_total_pct": 79.0,
+        "trades": 202
+      },
+      {
+        "mode": "zgraded",
+        "zthr": 1.75,
+        "oos_sharpe": -0.03,
+        "oos_total_pct": -3.6,
+        "trades": 146
+      },
+      {
+        "mode": "zgraded",
+        "zthr": 2.0,
+        "oos_sharpe": -0.16,
+        "oos_total_pct": -16.4,
+        "trades": 102
+      },
+      {
+        "mode": "zgraded",
+        "zthr": 2.25,
+        "oos_sharpe": -0.77,
+        "oos_total_pct": -69.6,
+        "trades": 72
+      },
+      {
+        "mode": "zgraded",
+        "zthr": 2.5,
+        "oos_sharpe": -0.76,
+        "oos_total_pct": -41.0,
+        "trades": 35
+      }
+    ],
+    "full_baseline": {
+      "mode": "percentile",
+      "zthr": 0,
+      "sharpe": 0.48,
+      "total_pct": 100.8,
+      "maxdd_pct": -45.1,
+      "trades": 310,
+      "win_rate": 49.4
+    }
+  }
+}

@@ -729,7 +729,7 @@ function renderExperiments(){
     const posTxt = e.position ? (e.position.side==="LONG"?'<span class="s-LONG">持多</span>':'<span class="s-SHORT">持空</span>') : "觀望中";
     return `<div class="expcard ${i===liveSel?'sel':''} ${e._baseline?'base':''}" data-i="${i}">
       <div class="exphd"><span class="expcoin">${m.coin}</span><span class="chip ${e._baseline?'':'hi'}">${m.variant}</span></div>
-      <div class="expcat">${m.category}${m.oos_sharpe?` · OOS夏普 ${m.oos_sharpe}`:''}</div>
+      <div class="expcat">${m.category}${m.sharpe_full22!=null?` · 夏普 ${m.sharpe_full22}（含2022）`:(m.oos_sharpe?` · OOS夏普 ${m.oos_sharpe}`:'')}</div>
       <div class="expeq ${cls(ret)}">${e.equity.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}<span class="u">U</span></div>
       <div class="expret ${cls(ret)}">${fmtPct(ret,2)}</div>
       <div class="expsig"><span class="pill ${sig.target}">${sig.target==="FLAT"?"觀望":(sig.target==="LONG"?"做多":"做空")}</span>
@@ -751,7 +751,11 @@ function renderLiveDetail(){
     <div class="pi"><span>持有/上限</span> <b>${m.hold_days} 天</b></div>
     <div class="pi"><span>出場</span> <b>${m.exit_label||("固定"+m.hold_days+"天")}</b></div>
     <div class="pi"><span>槓桿上限</span> <b>≤${m.leverage}×</b></div>
-    ${m.oos_sharpe?`<div class="pi"><span>樣本外夏普</span> <b class="tealtx">${m.oos_sharpe}</b></div>`:''}</div>`;
+    ${m.sharpe_full22!=null
+      ? `<div class="pi"><span>夏普（含2022全期）</span> <b class="tealtx">${m.sharpe_full22}</b></div>
+         <div class="pi"><span>夏普（OOS 2023起）</span> <b>${m.sharpe_oos23}</b></div>
+         <div class="pi"><span>市況依賴 gap</span> <b class="${m.sharpe_gap>=0.2?'neg':''}">${m.sharpe_gap}</b></div>`
+      : (m.oos_sharpe?`<div class="pi"><span>樣本外夏普</span> <b class="tealtx">${m.oos_sharpe}</b></div>`:'')}</div>`;
   if(V.error){
     document.getElementById("expDetailHdr").innerHTML=`<h2>${m.coin} · ${m.variant}</h2>${paramBar}
       <div class="note">尚未開始——${V.error}（需累積足夠歷史後開始，之後每小時自動更新）。</div>`;

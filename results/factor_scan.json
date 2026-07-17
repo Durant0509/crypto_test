@@ -1,0 +1,305 @@
+{
+  "BTCUSDT": [
+    {
+      "factor": "ls_ratio_CONTROL",
+      "direction": "fade",
+      "thesis": "retail crowd wrong at extremes (the incumbent \u2014 control)",
+      "oos_sharpe": 1.58,
+      "ic": -0.081,
+      "corr_to_ls": 1.0,
+      "maxdd_pct": -18.7,
+      "trades": 250,
+      "good": true
+    },
+    {
+      "factor": "taker_vol_ratio",
+      "direction": "fade",
+      "thesis": "aggressive taker buying exhausts -> reversion",
+      "oos_sharpe": -0.86,
+      "ic": -0.002,
+      "corr_to_ls": 0.15,
+      "maxdd_pct": -151.4,
+      "trades": 384,
+      "good": false
+    },
+    {
+      "factor": "toptrader_count_ls",
+      "direction": "fade",
+      "thesis": "top-trader accounts also contrarian at extremes (per prior IC work)",
+      "oos_sharpe": 0.49,
+      "ic": -0.089,
+      "corr_to_ls": 0.85,
+      "maxdd_pct": -37.4,
+      "trades": 263,
+      "good": false
+    },
+    {
+      "factor": "toptrader_sum_ls",
+      "direction": "fade",
+      "thesis": "top-trader positioning extreme reverts",
+      "oos_sharpe": -0.44,
+      "ic": -0.072,
+      "corr_to_ls": 0.05,
+      "maxdd_pct": -109.2,
+      "trades": 242,
+      "good": false
+    },
+    {
+      "factor": "funding",
+      "direction": "fade",
+      "thesis": "crowded-long pays funding -> mean-reverts (tested weak standalone before)",
+      "oos_sharpe": -0.01,
+      "ic": -0.054,
+      "corr_to_ls": 0.02,
+      "maxdd_pct": -65.2,
+      "trades": 307,
+      "good": false
+    },
+    {
+      "factor": "oi_zscore",
+      "direction": "fade",
+      "thesis": "extreme leverage buildup unwinds -> reversion (weak alone; wants quadrants)",
+      "oos_sharpe": -0.53,
+      "ic": -0.058,
+      "corr_to_ls": -0.11,
+      "maxdd_pct": -140.6,
+      "trades": 229,
+      "good": false
+    },
+    {
+      "factor": "oi_change",
+      "direction": "fade",
+      "thesis": "OI surging = crowding into a move -> fade the surge",
+      "oos_sharpe": -1.25,
+      "ic": -0.012,
+      "corr_to_ls": -0.14,
+      "maxdd_pct": -223.1,
+      "trades": 242,
+      "good": false
+    },
+    {
+      "factor": "price_reversion",
+      "direction": "fade",
+      "thesis": "price over-extension vs 45d mean reverts",
+      "oos_sharpe": -1.67,
+      "ic": 0.027,
+      "corr_to_ls": -0.72,
+      "maxdd_pct": -264.0,
+      "trades": 222,
+      "good": false
+    },
+    {
+      "factor": "price_momentum",
+      "direction": "follow",
+      "thesis": "trend continuation (MACD>0 -> keep going)",
+      "oos_sharpe": 0.5,
+      "ic": 0.015,
+      "corr_to_ls": 0.56,
+      "maxdd_pct": -39.1,
+      "trades": 210,
+      "good": false
+    }
+  ],
+  "ADAUSDT": [
+    {
+      "factor": "ls_ratio_CONTROL",
+      "direction": "fade",
+      "thesis": "retail crowd wrong at extremes (the incumbent \u2014 control)",
+      "oos_sharpe": 1.68,
+      "ic": -0.054,
+      "corr_to_ls": 1.0,
+      "maxdd_pct": -14.7,
+      "trades": 252,
+      "good": true
+    },
+    {
+      "factor": "taker_vol_ratio",
+      "direction": "fade",
+      "thesis": "aggressive taker buying exhausts -> reversion",
+      "oos_sharpe": -0.32,
+      "ic": -0.007,
+      "corr_to_ls": 0.18,
+      "maxdd_pct": -110.6,
+      "trades": 385,
+      "good": false
+    },
+    {
+      "factor": "toptrader_count_ls",
+      "direction": "fade",
+      "thesis": "top-trader accounts also contrarian at extremes (per prior IC work)",
+      "oos_sharpe": 1.13,
+      "ic": -0.064,
+      "corr_to_ls": 0.69,
+      "maxdd_pct": -24.5,
+      "trades": 252,
+      "good": false
+    },
+    {
+      "factor": "toptrader_sum_ls",
+      "direction": "fade",
+      "thesis": "top-trader positioning extreme reverts",
+      "oos_sharpe": -0.3,
+      "ic": -0.084,
+      "corr_to_ls": 0.16,
+      "maxdd_pct": -93.3,
+      "trades": 232,
+      "good": false
+    },
+    {
+      "factor": "funding",
+      "direction": "fade",
+      "thesis": "crowded-long pays funding -> mean-reverts (tested weak standalone before)",
+      "oos_sharpe": -0.65,
+      "ic": -0.025,
+      "corr_to_ls": -0.17,
+      "maxdd_pct": -142.1,
+      "trades": 341,
+      "good": false
+    },
+    {
+      "factor": "oi_zscore",
+      "direction": "fade",
+      "thesis": "extreme leverage buildup unwinds -> reversion (weak alone; wants quadrants)",
+      "oos_sharpe": -0.19,
+      "ic": 0.022,
+      "corr_to_ls": -0.2,
+      "maxdd_pct": -46.6,
+      "trades": 206,
+      "good": false
+    },
+    {
+      "factor": "oi_change",
+      "direction": "fade",
+      "thesis": "OI surging = crowding into a move -> fade the surge",
+      "oos_sharpe": -0.07,
+      "ic": -0.018,
+      "corr_to_ls": -0.29,
+      "maxdd_pct": -62.7,
+      "trades": 221,
+      "good": false
+    },
+    {
+      "factor": "price_reversion",
+      "direction": "fade",
+      "thesis": "price over-extension vs 45d mean reverts",
+      "oos_sharpe": -1.43,
+      "ic": -0.018,
+      "corr_to_ls": -0.33,
+      "maxdd_pct": -218.2,
+      "trades": 206,
+      "good": false
+    },
+    {
+      "factor": "price_momentum",
+      "direction": "follow",
+      "thesis": "trend continuation (MACD>0 -> keep going)",
+      "oos_sharpe": 0.17,
+      "ic": -0.006,
+      "corr_to_ls": 0.12,
+      "maxdd_pct": -49.5,
+      "trades": 191,
+      "good": false
+    }
+  ],
+  "DOGEUSDT": [
+    {
+      "factor": "ls_ratio_CONTROL",
+      "direction": "fade",
+      "thesis": "retail crowd wrong at extremes (the incumbent \u2014 control)",
+      "oos_sharpe": 1.15,
+      "ic": -0.014,
+      "corr_to_ls": 1.0,
+      "maxdd_pct": -36.8,
+      "trades": 248,
+      "good": false
+    },
+    {
+      "factor": "taker_vol_ratio",
+      "direction": "fade",
+      "thesis": "aggressive taker buying exhausts -> reversion",
+      "oos_sharpe": 0.25,
+      "ic": -0.01,
+      "corr_to_ls": -0.02,
+      "maxdd_pct": -48.2,
+      "trades": 387,
+      "good": false
+    },
+    {
+      "factor": "toptrader_count_ls",
+      "direction": "fade",
+      "thesis": "top-trader accounts also contrarian at extremes (per prior IC work)",
+      "oos_sharpe": 0.45,
+      "ic": -0.053,
+      "corr_to_ls": 0.65,
+      "maxdd_pct": -38.6,
+      "trades": 268,
+      "good": false
+    },
+    {
+      "factor": "toptrader_sum_ls",
+      "direction": "fade",
+      "thesis": "top-trader positioning extreme reverts",
+      "oos_sharpe": -0.74,
+      "ic": -0.023,
+      "corr_to_ls": -0.01,
+      "maxdd_pct": -110.3,
+      "trades": 234,
+      "good": false
+    },
+    {
+      "factor": "funding",
+      "direction": "fade",
+      "thesis": "crowded-long pays funding -> mean-reverts (tested weak standalone before)",
+      "oos_sharpe": -0.97,
+      "ic": -0.005,
+      "corr_to_ls": -0.07,
+      "maxdd_pct": -187.5,
+      "trades": 315,
+      "good": false
+    },
+    {
+      "factor": "oi_zscore",
+      "direction": "fade",
+      "thesis": "extreme leverage buildup unwinds -> reversion (weak alone; wants quadrants)",
+      "oos_sharpe": -0.77,
+      "ic": 0.038,
+      "corr_to_ls": -0.26,
+      "maxdd_pct": -110.0,
+      "trades": 197,
+      "good": false
+    },
+    {
+      "factor": "oi_change",
+      "direction": "fade",
+      "thesis": "OI surging = crowding into a move -> fade the surge",
+      "oos_sharpe": -0.82,
+      "ic": -0.002,
+      "corr_to_ls": -0.27,
+      "maxdd_pct": -140.9,
+      "trades": 212,
+      "good": false
+    },
+    {
+      "factor": "price_reversion",
+      "direction": "fade",
+      "thesis": "price over-extension vs 45d mean reverts",
+      "oos_sharpe": -1.56,
+      "ic": -0.02,
+      "corr_to_ls": -0.46,
+      "maxdd_pct": -253.2,
+      "trades": 219,
+      "good": false
+    },
+    {
+      "factor": "price_momentum",
+      "direction": "follow",
+      "thesis": "trend continuation (MACD>0 -> keep going)",
+      "oos_sharpe": 1.49,
+      "ic": -0.007,
+      "corr_to_ls": 0.26,
+      "maxdd_pct": -16.2,
+      "trades": 207,
+      "good": true
+    }
+  ]
+}

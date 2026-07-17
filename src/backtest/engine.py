@@ -48,6 +48,11 @@ class BacktestConfig:
     neutral_lo: float = 0.40
     neutral_hi: float = 0.60
     min_hold_hours: int = 24
+    # catastrophic-only hard stop on the UNLEVERED adverse price excursion
+    # (e.g. 0.20 = close if price moves 20% against the position intrabar). None
+    # = no stop (original spec). This is a WIDE ruin-cap, NOT a tight stop — tight
+    # 3-5% stops wash out the slow reversion (tested, rejected).
+    catastrophic_stop: float | None = None
 
 
 @dataclass
@@ -80,6 +85,15 @@ def run(df: pd.DataFrame, cfg: BacktestConfig = BacktestConfig(),
     idx = win.index
     n = len(win)
     normalize = cfg.exit_mode == "normalize"
+    signal_exit_mode = cfg.exit_mode == "signal"
+    # condition-based exit: direction-aware boolean columns computed by the caller
+    # (e.g. MA death/golden cross, price vs MA, Donchian trailing, BB middle). The
+    # condition at bar t-1 exits at bar t's open (same causal timing as entries).
+    if signal_exit_mode:
+        exit_long = (win["exit_long"].to_numpy(dtype=bool) if "exit_long" in win
+                     else np.zeros(n, dtype=bool))
+        exit_short = (win["exit_short"].to_numpy(dtype=bool) if "exit_short" in win
+                      else np.zeros(n, dtype=bool))
     nlo, nhi, min_hold = cfg.neutral_lo, cfg.neutral_hi, cfg.min_hold_hours
 
     base = cfg.base_notional
@@ -121,7 +135,10 @@ def run(df: pd.DataFrame, cfg: BacktestConfig = BacktestConfig(),
             time_exit = held >= hold                       # hold_hours = time exit / max cap
             norm_exit = (normalize and held >= min_hold
                          and np.isfinite(pcts[i - 1]) and nlo <= pcts[i - 1] <= nhi)
-            if time_exit or norm_exit:
+            sig_exit = (signal_exit_mode and held >= min_hold
+                        and ((pos_side == 1 and exit_long[i - 1])
+                             or (pos_side == -1 and exit_short[i - 1])))
+            if time_exit or norm_exit or sig_exit:
                 realized += _record_trade(i, opens[i], notional * cps * 2.0)  # 2 legs
                 pos_side, entry_i, entry_px, notional, mae, mfe = 0, -1, 0.0, 0.0, 0.0, 0.0
 
@@ -146,6 +163,16 @@ def run(df: pd.DataFrame, cfg: BacktestConfig = BacktestConfig(),
                 mae = worst
             if best > mfe:
                 mfe = best
+
+        # ----- catastrophic stop: intrabar adverse move breaches -stop -------
+        # Fill at the stop level (wide stop -> gap-through risk negligible). Same
+        # 2-leg cost convention as a normal exit so baseline vs stop differ ONLY
+        # by the stop.
+        if (pos_side != 0 and cfg.catastrophic_stop is not None
+                and mae <= -cfg.catastrophic_stop):
+            stop_px = entry_px * (1.0 - pos_side * cfg.catastrophic_stop)
+            realized += _record_trade(i, stop_px, notional * cps * 2.0)
+            pos_side, entry_i, entry_px, notional, mae, mfe = 0, -1, 0.0, 0.0, 0.0, 0.0
 
         # ----- mark-to-market equity ----------------------------------------
         if pos_side != 0:
