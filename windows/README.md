@@ -65,6 +65,25 @@ powershell -ExecutionPolicy Bypass -File windows\setup.ps1
 - 網頁「實時模擬」分頁會把 4 檔並排成卡片，每張卡標明**該實驗的參數類別**（幣種 / lookback / 門檻 / 持有 / 槓桿上限）。
 - 首次啟動時 ADA/DOGE 會各自從 Binance 公開資料下載約 110 天歷史暖機（約 2–4 分鐘），之後每小時自動更新。
 
+## 清算資料收集器（養新策略的資料，一次性設定）
+
+免費的幣安清算資料**只有即時 WebSocket、沒有歷史**，所以要「現在開始收、養幾個月」才能回測清算因子。這台常開的 Windows 是收集的最佳位置。
+
+**一次性設定**（在 `C:\crypto_test` 裡跑一次）：
+```powershell
+git pull
+powershell -ExecutionPolicy Bypass -File windows\setup_liq_collector.ps1
+```
+
+它會：裝 `websocket-client`、註冊一個**常駐**排程 `CryptoLiqCollector`（登入時自動啟動、崩潰自動重連，跟每小時的 `CryptoPaperTick` 分開）、立刻開始收全市場清算事件。
+
+- 資料每小時落一個檔：`data\liquidations\liq-YYYY-MM-DD.parquet`（原始事件：幣種/方向/價格/數量/名目/時間戳）
+- 每小時的 paper tick 會順便把這些 parquet commit+push 上 GitHub（所以 Mac 端回測讀得到）
+- 看是否在收：`Get-Content data\liq_collector.log -Tail 15` 和 `dir data\liquidations`
+- 暫停：`schtasks /Change /TN CryptoLiqCollector /DISABLE`
+
+> 注意：清算是稀疏事件，市場平靜時可能幾分鐘沒半筆，波動時每秒數十筆——log 裡看到 "flushed N events" 就是正常運作。
+
 ## 注意事項
 
 - 排程在 **使用者登入時** 執行，所以請讓這台機器 **保持登入**（螢幕可以鎖，但別登出/關機）。

@@ -19,6 +19,10 @@ __pycache__/
 # Root-anchored so it does NOT match the src/data/ package.
 /data/
 !/data/.gitkeep
+# EXCEPTION: self-collected liquidation history IS committed — it's NOT
+# regenerable (free WS has no history; if we don't save it, it's gone forever).
+!/data/liquidations/
+!/data/liquidations/*.parquet
 
 # NOTE: results/ (backtest charts, trade log, metrics) IS committed on purpose,
 # so the repo is self-documenting.

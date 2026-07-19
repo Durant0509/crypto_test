@@ -418,6 +418,27 @@ price-event exit fires too late/too randomly, holds past the reversion, and give
 back gains. Keep L/S on the fixed 3d clock. The condition-exit win does NOT
 transfer; direction/structure matters.
 
+## 6n. OI × price QUADRANT factor TESTED & REJECTED — OI closed out (2026-07, `research/oi_quadrant.py`)
+
+Last shot at OI: pair ΔOI with price direction (naive OI level was dead §6e).
+Thesis: fade the "OI rising into an extreme move" quadrants (new leverage crowding
+a move that snaps back). Also tested the OI-falling squeeze/capitulation pair.
+Standalone, full-period incl 2022:
+
+| factor | BTC | ADA | DOGE | corr-to-L/S |
+|---|---|---|---|---|
+| L/S control | 1.55 | 1.61 | 1.07 | — |
+| OI-crowding fade | -1.99 | -0.50 | -0.91 | -0.53 |
+| OI-reversal quad | -0.56 | -0.37 | -0.33 | -0.31 |
+
+Verdict: **REJECTED — worse than naive OI.** All coins, both quadrant logics,
+large negatives (BTC crowding fade -1.99, MaxDD -385%). The -0.53 corr to L/S means
+the fade direction is backwards; reversing it (= FOLLOW OI-backed moves) is just
+price momentum, which we already showed fails on BTC (0.74, §6i). Circular dead
+end. **OI has no standalone edge in any form (level/Δ/quadrant) at the 3d horizon.
+OI is now fully closed out.** Another instance of the meta-lesson: the edge is the
+L/S mechanic, not added factors.
+
 ## 7. Ideas / extensions (ranked — see dashboard 未來方向 tab)
 
 1. Cross-sectional market-neutral basket (diversify single-coin blow-ups).

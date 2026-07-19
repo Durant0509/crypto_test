@@ -4,3 +4,4 @@ matplotlib>=3.7
 requests>=2.31
 pyarrow>=14
 PyYAML>=6
+websocket-client>=1.7
