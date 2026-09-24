@@ -1,23 +1,10 @@
 {
   "start_time": "2026-07-16T18:21:22.100294+00:00",
   "start_equity": 1000.0,
-  "equity": 1061.8519146083659,
-  "realized_pnl": 61.85191460836603,
-  "last_acted_candle": "2026-09-19T04:00:00+00:00",
-  "position": {
-    "side": "SHORT",
-    "entry_time": "2026-09-19T05:03:06.809244+00:00",
-    "entry_candle": "2026-09-19T04:00:00+00:00",
-    "entry_px": 0.22605,
-    "qty": 2785.439392,
-    "notional": 629.65,
-    "size_mult": 0.59,
-    "scheduled_exit_candle": "2026-09-24T04:00:00+00:00",
-    "ref_levels": {
-      "minus10": 0.264185,
-      "minus20": 0.30232
-    }
-  },
+  "equity": 1015.3749983088746,
+  "realized_pnl": 15.374998308874773,
+  "last_acted_candle": "2026-09-24T04:00:00+00:00",
+  "position": null,
   "trades": [
     {
       "entry_time": "2026-07-18T19:03:06.732338+00:00",
@@ -186,6 +173,20 @@
       "pnl": 97.0,
       "equity_after": 1062.23,
       "win": true
+    },
+    {
+      "entry_time": "2026-09-19T05:03:06.809244+00:00",
+      "exit_time": "2026-09-24T05:03:06.602560+00:00",
+      "side": "SHORT",
+      "entry_px": 0.22605,
+      "exit_px": 0.2426,
+      "qty": 2785.439392,
+      "notional": 629.65,
+      "size_mult": 0.59,
+      "gross_return": -7.321,
+      "pnl": -46.48,
+      "equity_after": 1015.37,
+      "win": false
     }
   ],
   "equity_curve": [
@@ -8533,6 +8534,11 @@
       "t": "2026-09-24T03:00:00+00:00",
       "eq": 1027.73,
       "px": 0.238301
+    },
+    {
+      "t": "2026-09-24T04:00:00+00:00",
+      "eq": 1015.37,
+      "px": 0.2426
     }
   ],
   "halted": false
